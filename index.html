@@ -2,2136 +2,409 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Jio STB Cinematic Launcher — JioOS 25.1.9</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
-
-:root {
-  color-scheme: dark;
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --bg-deep: #060911;
-  --text-main: #f5f8ff;
-  --text-sub: #94a5c4;
-  --text-muted: #5e7090;
-  --accent-gold: #ffcb05;
-  --glow-color: rgba(255, 203, 5, 0.45);
-  --card-radius: 20px;
-  --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-html, body {
-  width: 100%;
-  height: 100%;
-  overflow-x: hidden;
-  background-color: var(--bg-deep);
-  color: var(--text-main);
-  user-select: none;
-  -webkit-user-select: none;
-  cursor: none;
-  font-size: 16px;
-}
-
-body.show-cursor {
-  cursor: default;
-}
-
-/* Background Atmosphere */
-.cinematic-bg-container {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-.cinematic-bg-layer {
-  position: absolute;
-  top: -4%; left: -4%; width: 108%; height: 108%;
-  background-size: cover;
-  background-position: center 25%;
-  transition: opacity 0.8s ease, transform 1.2s ease, filter 0.8s ease;
-  filter: brightness(0.38) saturate(1.2);
-}
-.cinematic-bg-default {
-  background-image: 
-    radial-gradient(circle at 75% 20%, rgba(24, 55, 102, 0.55) 0%, transparent 55%),
-    radial-gradient(circle at 20% 80%, rgba(13, 26, 48, 0.8) 0%, transparent 60%),
-    linear-gradient(180deg, rgba(6, 9, 17, 0.2) 0%, rgba(6, 9, 17, 0.85) 65%, #060911 100%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080' width='1920' height='1080'%3E%3Cdefs%3E%3CradialGradient id='g1' cx='60%25' cy='30%25' r='50%25'%3E%3Cstop offset='0%25' stop-color='%2319345e'/%3E%3Cstop offset='100%25' stop-color='%23060911'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='1920' height='1080' fill='url(%23g1)'/%3E%3Cpath d='M0 700 Q 480 620 960 740 T 1920 660 L 1920 1080 L 0 1080 Z' fill='%23080e1a' opacity='0.7'/%3E%3C/svg%3E");
-}
-.bg-vignette {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 40%, transparent 35%, rgba(6, 9, 17, 0.85) 85%, #060911 100%),
-              linear-gradient(to bottom, rgba(6,9,17,0.3) 0%, transparent 20%, rgba(6,9,17,0.6) 60%, #060911 95%);
-}
-.dynamic-glow-ambient {
-  position: absolute;
-  width: 900px;
-  height: 500px;
-  top: 15%;
-  left: 50%;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  filter: blur(140px);
-  opacity: 0.22;
-  transition: background-color 0.8s ease, opacity 0.8s ease;
-  pointer-events: none;
-}
-
-/* Page Frame */
-.launcher-viewport {
-  position: relative;
-  z-index: 1;
-  min-height: 100vh;
-  padding: 38px 60px 80px;
-  max-width: 1920px;
-  margin: 0 auto;
-}
-
-/* 1. HERO / TOP BAR */
-header.hero-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 60px;
-  margin-bottom: 25px;
-}
-.header-left {
-  display: flex;
-  align-items: baseline;
-  gap: 20px;
-}
-.clock-display {
-  font-size: 38px;
-  font-weight: 300;
-  letter-spacing: -0.5px;
-  color: #fff;
-  text-shadow: 0 2px 14px rgba(0,0,0,0.7);
-}
-.weather-display {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-sub);
-  font-size: 17px;
-  font-weight: 400;
-}
-.weather-icon {
-  width: 22px;
-  height: 22px;
-  fill: currentColor;
-}
-.device-badge {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  color: #a8bce0;
-  letter-spacing: 0.5px;
-}
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-.header-icon-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-sub);
-  transition: all 0.25s ease;
-}
-.header-icon-btn svg {
-  width: 20px;
-  height: 20px;
-  fill: currentColor;
-}
-
-/* Nav Item Base State & TV Hit Box */
-.nav-item {
-  outline: none !important;
-  user-select: none;
-  cursor: none;
-  position: relative;
-  border: 1px solid transparent;
-}
-/* Invisible hit area expansion for remote pointer precision */
-.nav-item::before {
-  content: '';
-  position: absolute;
-  top: -12px;
-  bottom: -12px;
-  left: -12px;
-  right: -12px;
-  z-index: 1;
-  pointer-events: auto;
-}
-.nav-item:focus, .nav-item.focused {
-  outline: none !important;
-  box-shadow: 0 0 0 3px var(--focus-color, var(--accent-gold)), 0 12px 32px rgba(0, 0, 0, 0.8) !important;
-  border-color: rgba(255, 255, 255, 0.8) !important;
-  z-index: 20;
-}
-.header-icon-btn:focus, .header-icon-btn.focused {
-  background: rgba(255, 255, 255, 0.22);
-  color: #fff;
-  transform: scale(1.15);
-  box-shadow: 0 0 0 3px var(--accent-gold), 0 0 20px rgba(255, 203, 5, 0.45) !important;
-}
-
-/* 2. MAIN APP DOCK */
-.dock-section {
-  margin: 30px 0 50px;
-}
-.dock-context-bar {
-  height: 48px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  margin-bottom: 18px;
-  padding-left: 6px;
-}
-.dock-app-tagline {
-  font-size: 21px;
-  font-weight: 500;
-  color: #fff;
-  letter-spacing: -0.2px;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-  transition: opacity 0.25s ease, transform 0.25s ease;
-}
-.dock-app-sub {
-  font-size: 13px;
-  color: var(--text-sub);
-  letter-spacing: 0.5px;
-  margin-top: 2px;
-}
-.app-dock {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 20px;
-  padding: 10px 4px;
-}
-.app-tile {
-  background: rgba(22, 33, 54, 0.55);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--card-radius);
-  aspect-ratio: 16 / 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 16px 12px;
-  transition: transform 0.25s var(--ease-cinematic), background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-}
-.app-tile-logo-wrap {
-  width: 100%;
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.25s ease;
-}
-.app-tile-logo {
-  max-width: 82%;
-  max-height: 44px;
-  object-fit: contain;
-  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
-}
-.app-tile-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #dbe6fa;
-  margin-top: 8px;
-  letter-spacing: 0.2px;
-  opacity: 0.85;
-  transition: opacity 0.2s ease;
-}
-.app-tile:focus, .app-tile.focused {
-  background: rgba(35, 54, 88, 0.85);
-  transform: scale(1.14) translateY(-6px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 35px var(--app-glow, rgba(255, 203, 5, 0.5)) !important;
-  border-color: rgba(255, 255, 255, 0.7) !important;
-}
-.app-tile:focus .app-tile-logo-wrap, .app-tile.focused .app-tile-logo-wrap {
-  transform: scale(1.08);
-}
-.app-tile:focus .app-tile-label, .app-tile.focused .app-tile-label {
-  opacity: 1;
-  color: #ffffff;
-}
-
-/* SECTION TITLES */
-.section-headline {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  padding-left: 4px;
-}
-.section-title {
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: -0.4px;
-  color: #fff;
-}
-.section-subtitle {
-  font-size: 14px;
-  color: var(--text-sub);
-  font-weight: 400;
-  margin-left: 14px;
-}
-.section-action-hint {
-  font-size: 13px;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.key-pill {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 6px;
-  padding: 2px 7px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #ffcb05;
-}
-
-/* 3. CARD SHUFFLE / MOOD CARDS SECTION */
-.shuffle-section {
-  margin: 40px 0 50px;
-}
-.mood-deck-container {
-  display: grid;
-  grid-template-columns: 460px 1fr;
-  gap: 36px;
-  align-items: center;
-}
-/* Left: Interactive Stacked Mood Deck */
-.mood-deck-stage {
-  position: relative;
-  height: 310px;
-  perspective: 1200px;
-}
-.mood-card {
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  border-radius: 24px;
-  padding: 26px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  transition: transform 0.4s var(--ease-cinematic), opacity 0.4s ease, box-shadow 0.4s ease;
-  overflow: hidden;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
-}
-.mood-card-bg-glow {
-  position: absolute;
-  inset: 0;
-  opacity: 0.28;
-  background-size: cover;
-  background-position: center;
-  mix-blend-mode: screen;
-}
-.mood-card-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(12, 19, 32, 0.94) 0%, rgba(12, 19, 32, 0.7) 60%, rgba(12, 19, 32, 0.95) 100%);
-}
-.mood-card-content {
-  position: relative;
-  z-index: 2;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.mood-card-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.mood-badge {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  padding: 4px 12px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-.mood-fanned-posters {
-  position: relative;
-  height: 140px;
-  margin: 10px 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.fan-poster {
-  position: absolute;
-  width: 90px;
-  height: 130px;
-  border-radius: 10px;
-  object-fit: cover;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  transition: transform 0.35s ease, filter 0.35s ease;
-}
-.fan-poster.p1 { transform: translateX(-48px) rotate(-10deg) scale(0.92); z-index: 1; filter: brightness(0.75); }
-.fan-poster.p2 { transform: translateX(0px) rotate(0deg) scale(1.05); z-index: 3; }
-.fan-poster.p3 { transform: translateX(48px) rotate(10deg) scale(0.92); z-index: 2; filter: brightness(0.75); }
-
-.mood-card:focus .fan-poster.p1, .mood-card.focused .fan-poster.p1 { transform: translateX(-62px) rotate(-14deg) scale(0.96); }
-.mood-card:focus .fan-poster.p2, .mood-card.focused .fan-poster.p2 { transform: translateX(0px) rotate(0deg) scale(1.14); box-shadow: 0 12px 30px rgba(0,0,0,0.9); }
-.mood-card:focus .fan-poster.p3, .mood-card.focused .fan-poster.p3 { transform: translateX(62px) rotate(14deg) scale(0.96); }
-
-.mood-title {
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: -0.3px;
-  color: #fff;
-}
-.mood-count {
-  font-size: 13px;
-  color: var(--text-sub);
-  margin-top: 2px;
-}
-
-/* Card Stacking & Peeking Behavior */
-.mood-card.pos-0 {
-  transform: translateZ(0) scale(1);
-  z-index: 5;
-  opacity: 1;
-}
-.mood-card.pos-1 {
-  transform: translate(22px, -12px) scale(0.95);
-  z-index: 4;
-  opacity: 0.65;
-  filter: brightness(0.65);
-}
-.mood-card.pos-2 {
-  transform: translate(40px, -24px) scale(0.90);
-  z-index: 3;
-  opacity: 0.4;
-  filter: brightness(0.45);
-}
-.mood-card:focus, .mood-card.focused {
-  transform: translateZ(20px) scale(1.03) !important;
-  border-color: rgba(255, 255, 255, 0.9) !important;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 40px var(--mood-glow, rgba(255, 203, 5, 0.5)) !important;
-}
-
-/* Right: Slot Machine Shuffle / Instant Recommendation Stage */
-.shuffle-stage-panel {
-  background: rgba(14, 23, 38, 0.65);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 24px;
-  height: 310px;
-  padding: 24px 30px;
-  display: flex;
-  align-items: center;
-  gap: 28px;
-  position: relative;
-  overflow: hidden;
-}
-.shuffle-reel-window {
-  width: 140px;
-  height: 205px;
-  border-radius: 14px;
-  background: #080d16;
-  border: 2px solid rgba(255, 255, 255, 0.14);
-  position: relative;
-  overflow: hidden;
-  flex-shrink: 0;
-  box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 8px 24px rgba(0,0,0,0.6);
-}
-.shuffle-strip {
-  position: absolute;
-  top: 0; left: 0; width: 100%;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.1s linear;
-}
-.reel-poster-item {
-  width: 140px;
-  height: 205px;
-  object-fit: cover;
-}
-.shuffle-details {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.shuffle-status-tag {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--accent-gold);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.shuffle-title {
-  font-size: 32px;
-  font-weight: 800;
-  line-height: 1.15;
-  color: #fff;
-  letter-spacing: -0.5px;
-  margin-bottom: 6px;
-}
-.shuffle-meta {
-  font-size: 14px;
-  color: var(--text-sub);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-.meta-app-badge {
-  background: rgba(255, 255, 255, 0.12);
-  padding: 3px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  color: #ffffff;
-  font-weight: 600;
-}
-.shuffle-overview {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #b0c0d8;
-  max-width: 580px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  margin-bottom: 20px;
-}
-.shuffle-controls {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-}
-.btn-shuffle {
-  padding: 12px 26px;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #ffffff;
-  color: #060911;
-  border: 1px solid #ffffff;
-  transition: all 0.2s ease;
-}
-.btn-shuffle:focus, .btn-shuffle.focused {
-  background: var(--accent-gold);
-  border-color: #fff;
-  color: #060911;
-  transform: scale(1.06);
-  box-shadow: 0 0 25px rgba(255, 203, 5, 0.7) !important;
-}
-.btn-spin-again {
-  padding: 12px 20px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  transition: all 0.2s ease;
-}
-.btn-spin-again:focus, .btn-spin-again.focused {
-  background: rgba(255, 255, 255, 0.22);
-  border-color: #fff;
-  transform: scale(1.06);
-  box-shadow: 0 0 25px rgba(255, 255, 255, 0.4) !important;
-}
-
-/* Slot countdown progress bar */
-.countdown-bar-wrap {
-  width: 100%;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-top: 14px;
-  display: none;
-}
-.countdown-progress {
-  height: 100%;
-  width: 100%;
-  background: var(--accent-gold);
-  transition: width 3s linear;
-}
-
-/* 4. CARD CAROUSEL SECTION */
-.carousel-section {
-  margin: 40px 0 60px;
-}
-.carousel-track-wrapper {
-  overflow: visible;
-  padding: 14px 4px;
-}
-.carousel-track {
-  display: flex;
-  gap: 22px;
-  transition: transform 0.35s var(--ease-cinematic);
-}
-.poster-card {
-  flex: 0 0 220px;
-  height: 330px;
-  border-radius: 18px;
-  background: #111a2a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
-  transition: transform 0.28s var(--ease-cinematic), box-shadow 0.28s ease, border-color 0.28s ease;
-}
-.poster-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.4s ease;
-}
-.poster-gradient {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(6, 9, 17, 0.95) 0%, rgba(6, 9, 17, 0.4) 40%, transparent 70%);
-}
-.poster-info {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.poster-app-pill {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  color: #ffcb05;
-}
-.poster-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #fff;
-  line-height: 1.25;
-}
-.poster-meta {
-  font-size: 12px;
-  color: var(--text-sub);
-}
-.poster-card:focus, .poster-card.focused {
-  transform: scale(1.10) translateY(-10px);
-  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.9), 0 0 35px rgba(255, 203, 5, 0.5) !important;
-  border-color: rgba(255, 255, 255, 0.85) !important;
-  z-index: 15;
-}
-.poster-card:focus img, .poster-card.focused img {
-  transform: scale(1.06);
-}
-
-/* 5. DIAGNOSTICS & SYSTEM STATUS OVERLAY */
-.system-overlay {
-  margin-top: 50px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-top: 24px;
-}
-.diag-strip {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(14, 23, 38, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 12px 24px;
-  font-size: 13px;
-  color: var(--text-sub);
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.diag-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.diag-val {
-  color: #fff;
-  font-weight: 600;
-  font-family: Consolas, monospace;
-}
-.pill-active {
-  background: rgba(56, 211, 159, 0.2);
-  border: 1px solid rgba(56, 211, 159, 0.5);
-  color: #38d39f;
-  padding: 2px 8px;
-  border-radius: 6px;
-  font-weight: 700;
-}
-
-/* 6. REMOTE INPUT DIAGNOSTICS OVERLAY */
-.diag-overlay {
-  position: fixed;
-  top: 0; right: 0;
-  width: 480px;
-  max-height: 100vh;
-  z-index: 9999;
-  background: rgba(6, 9, 17, 0.94);
-  backdrop-filter: blur(16px);
-  border-left: 1px solid rgba(255, 255, 255, 0.12);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  border-bottom-left-radius: 16px;
-  font-family: Consolas, 'Courier New', monospace;
-  font-size: 12px;
-  color: #c8d6e5;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.3s var(--ease-cinematic), opacity 0.3s ease;
-  transform: translateX(0);
-  opacity: 1;
-  pointer-events: auto;
-}
-.diag-overlay.hidden {
-  transform: translateX(500px);
-  opacity: 0;
-  pointer-events: none;
-}
-.diag-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  flex-shrink: 0;
-}
-.diag-header-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: #ffcb05;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-.diag-toggle-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 11px;
-  color: #fff;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-/* Input mode indicators */
-.diag-mode-row {
-  display: flex;
-  gap: 10px;
-  padding: 10px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  flex-shrink: 0;
-}
-.diag-mode-badge {
-  flex: 1;
-  text-align: center;
-  padding: 8px;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 12px;
-  letter-spacing: 0.5px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-.diag-mode-badge.mode-keyboard {
-  background: rgba(56, 211, 159, 0.12);
-  border-color: rgba(56, 211, 159, 0.3);
-  color: #38d39f;
-}
-.diag-mode-badge.mode-mouse {
-  background: rgba(99, 145, 255, 0.12);
-  border-color: rgba(99, 145, 255, 0.3);
-  color: #6391ff;
-}
-.diag-mode-badge.mode-active {
-  border-width: 2px;
-}
-.diag-mode-badge.mode-keyboard.mode-active {
-  background: rgba(56, 211, 159, 0.25);
-  border-color: #38d39f;
-  box-shadow: 0 0 12px rgba(56, 211, 159, 0.4);
-}
-.diag-mode-badge.mode-mouse.mode-active {
-  background: rgba(99, 145, 255, 0.25);
-  border-color: #6391ff;
-  box-shadow: 0 0 12px rgba(99, 145, 255, 0.4);
-}
-.diag-mode-count {
-  font-size: 22px;
-  font-weight: 800;
-  display: block;
-  margin-bottom: 2px;
-}
-
-/* Stats row */
-.diag-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 1px;
-  padding: 10px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  flex-shrink: 0;
-}
-.diag-stat-item {
-  text-align: center;
-}
-.diag-stat-label {
-  font-size: 10px;
-  color: #5e7090;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.diag-stat-val {
-  font-size: 14px;
-  font-weight: 700;
-  color: #fff;
-  margin-top: 2px;
-}
-
-/* Event log */
-.diag-log-container {
-  flex: 1;
-  overflow-y: auto;
-  max-height: 420px;
-  padding: 8px 0;
-}
-.diag-log-entry {
-  padding: 4px 16px;
-  line-height: 1.5;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-  display: flex;
-  gap: 8px;
-  align-items: baseline;
-}
-.diag-log-entry:nth-child(odd) {
-  background: rgba(255, 255, 255, 0.02);
-}
-.diag-log-time {
-  color: #5e7090;
-  font-size: 10px;
-  flex-shrink: 0;
-  width: 55px;
-}
-.diag-log-type {
-  font-weight: 700;
-  font-size: 11px;
-  flex-shrink: 0;
-  width: 80px;
-  text-transform: uppercase;
-}
-.diag-log-type.type-key { color: #38d39f; }
-.diag-log-type.type-mouse { color: #6391ff; }
-.diag-log-type.type-focus { color: #ffcb05; }
-.diag-log-type.type-click { color: #ff6b6b; }
-.diag-log-detail {
-  color: #c8d6e5;
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Focused element display */
-.diag-focus-bar {
-  padding: 8px 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  flex-shrink: 0;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-.diag-focus-label {
-  color: #5e7090;
-  font-size: 10px;
-  text-transform: uppercase;
-  flex-shrink: 0;
-}
-.diag-focus-val {
-  color: #ffcb05;
-  font-weight: 700;
-  font-size: 12px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Toggle hint floating pill */
-.diag-toggle-hint {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  z-index: 10000;
-  background: rgba(255, 203, 5, 0.15);
-  border: 1px solid rgba(255, 203, 5, 0.4);
-  color: #ffcb05;
-  border-radius: 20px;
-  padding: 6px 14px;
-  font-size: 11px;
-  font-weight: 700;
-  font-family: Consolas, monospace;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-.diag-toggle-hint.hidden { opacity: 0; }
-
-/* Toast Message */
-.tv-toast {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%) translateY(100px);
-  background: rgba(10, 16, 26, 0.92);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 30px;
-  padding: 12px 28px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 15px;
-  font-weight: 600;
-  color: #fff;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px var(--accent-gold);
-  z-index: 100;
-  transition: transform 0.3s var(--ease-cinematic), opacity 0.3s ease;
-  opacity: 0;
-  pointer-events: none;
-}
-.tv-toast.visible {
-  transform: translateX(-50%) translateY(0);
-  opacity: 1;
-}
-
-</style>
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/animations.css">
 </head>
 <body>
 
-<!-- Dynamic Cinematic Background -->
-<div class="cinematic-bg-container">
-  <div class="cinematic-bg-layer cinematic-bg-default" id="cinematic-bg"></div>
-  <div class="bg-vignette"></div>
-  <div class="dynamic-glow-ambient" id="ambient-glow"></div>
+<!-- 1. FIXED BACKGROUND ATMOSPHERE -->
+<div class="background-wrapper">
+  <div class="wallpaper-layer" id="wallpaper-layer"></div>
+  <div class="scene-backdrop-layer" id="scene-backdrop-layer"></div>
+  <div class="wallpaper-vignette"></div>
+  <div class="ambient-glow-layer" id="ambient-glow-layer"></div>
 </div>
 
-<div class="launcher-viewport">
+<!-- 2. TV STAGE (TRANSLATES VERTICALLY BETWEEN SECTIONS) -->
+<main class="tv-stage" id="tv-stage">
 
-  <!-- 1. HERO / TOP HEADER -->
-  <header class="hero-header">
+  <!-- TOP BAR (HEADER) -->
+  <header class="top-header">
     <div class="header-left">
-      <div class="clock-display" id="clock-display">00:00</div>
-      <div class="weather-display">
-        <svg class="weather-icon" viewBox="0 0 24 24"><path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41zM4 10.5H1v2h3v-2zm9-9.95h-2V3.5h2V.55zm7.45 3.91l-1.41-1.41-1.79 1.79 1.41 1.41 1.79-1.79zm-3.21 13.7l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM20 10.5v2h3v-2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm-7.45 2.29l-1.79 1.79 1.41 1.41 1.8-1.79-1.42-1.41zM11 20.45h2V23.4h-2v-2.95z"/></svg>
+      <div class="clock-text" id="clock-text">00:00</div>
+      <div class="weather-block">
+        <svg class="weather-icon-svg" viewBox="0 0 24 24"><path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41zM4 10.5H1v2h3v-2zm9-9.95h-2V3.5h2V.55zm7.45 3.91l-1.41-1.41-1.79 1.79 1.41 1.41 1.79-1.79zm-3.21 13.7l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM20 10.5v2h3v-2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm-7.45 2.29l-1.79 1.79 1.41 1.41 1.8-1.79-1.42-1.41zM11 20.45h2V23.4h-2v-2.95z"/></svg>
         <span id="weather-temp">28°C</span>
       </div>
-      <span class="device-badge">JMSD200Av2 · JioOS 25.1.9</span>
+      <span class="stb-badge">JMSD200Av2 · JioOS 25.1.9</span>
     </div>
     <div class="header-right">
-      <button class="nav-item header-icon-btn" id="btn-hdr-search" type="button" aria-label="Search">
+      <button class="nav-item header-icon-btn" id="btn-top-search" type="button" aria-label="Search">
         <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
       </button>
-      <button class="nav-item header-icon-btn" id="btn-hdr-settings" type="button" aria-label="Settings">
+      <button class="nav-item header-icon-btn" id="btn-top-settings" type="button" aria-label="Settings / Diagnostics">
         <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
       </button>
     </div>
   </header>
 
-  <!-- 2. MAIN APP DOCK (8 FLOATING APPS) -->
-  <section class="dock-section">
+  <!-- SECTION 0: MAIN APP DOCK (8 FLOATING APPS) -->
+  <section class="dock-section" aria-label="Main Applications">
     <div class="dock-context-bar">
-      <div class="dock-app-tagline" id="dock-tagline">“India’s favourite live television and OTT aggregator.”</div>
+      <div class="dock-tagline" id="dock-tagline">“India’s favourite live television and OTT aggregator.”</div>
       <div class="dock-app-sub" id="dock-app-sub">JioTV+ · Ready to launch</div>
     </div>
-    
-    <div class="app-dock" id="app-dock" role="navigation" aria-label="Main Applications">
+
+    <div class="dock-grid" id="dock-grid" role="menubar">
       <!-- 1. JioTV+ -->
-      <button class="nav-item app-tile" id="app-jiotv" type="button" data-app="jiotv" data-color="#ff3366">
-        <div class="app-tile-logo-wrap">
-          <svg class="app-tile-logo" viewBox="0 0 100 40" fill="#ff3366">
-            <text x="50%" y="65%" text-anchor="middle" font-size="28" font-weight="900" font-family="'Outfit', sans-serif" fill="#fff">Jio<tspan fill="#ff3366">TV+</tspan></text>
-          </svg>
+      <button class="nav-item dock-logo-tile" id="app-0" data-app="jiotv" type="button">
+        <div class="dock-logo-wrap">
+          <img src="assets/logos/jiotv.svg" alt="JioTV+" class="dock-logo-img">
         </div>
-        <span class="app-tile-label">JioTV+</span>
+        <span class="dock-logo-label">JioTV+</span>
       </button>
 
       <!-- 2. JioHotstar -->
-      <button class="nav-item app-tile" id="app-hotstar" type="button" data-app="hotstar" data-color="#5f9eff">
-        <div class="app-tile-logo-wrap">
-          <svg class="app-tile-logo" viewBox="0 0 120 40" fill="#5f9eff">
-            <text x="50%" y="65%" text-anchor="middle" font-size="24" font-weight="800" font-family="'Outfit', sans-serif" fill="#5f9eff">★ hotstar</text>
-          </svg>
+      <button class="nav-item dock-logo-tile" id="app-1" data-app="hotstar" type="button">
+        <div class="dock-logo-wrap">
+          <img src="assets/logos/hotstar.svg" alt="JioHotstar" class="dock-logo-img">
         </div>
-        <span class="app-tile-label">JioHotstar</span>
+        <span class="dock-logo-label">JioHotstar</span>
       </button>
 
       <!-- 3. YouTube -->
-      <button class="nav-item app-tile" id="app-youtube" type="button" data-app="youtube" data-color="#ff3333">
-        <div class="app-tile-logo-wrap">
-          <svg class="app-tile-logo" viewBox="0 0 120 40">
-            <rect x="10" y="8" width="34" height="24" rx="7" fill="#ff0000"/>
-            <polygon points="24,14 32,20 24,26" fill="#fff"/>
-            <text x="52" y="27" font-size="19" font-weight="800" font-family="'Outfit', sans-serif" fill="#fff">YouTube</text>
-          </svg>
+      <button class="nav-item dock-logo-tile" id="app-2" data-app="youtube" type="button">
+        <div class="dock-logo-wrap">
+          <img src="assets/logos/youtube.svg" alt="YouTube" class="dock-logo-img">
         </div>
-        <span class="app-tile-label">YouTube</span>
+        <span class="dock-logo-label">YouTube</span>
       </button>
 
       <!-- 4. Prime Video -->
-      <button class="nav-item app-tile" id="app-prime" type="button" data-app="prime" data-color="#00a8e1">
-        <div class="app-tile-logo-wrap">
-          <svg class="app-tile-logo" viewBox="0 0 120 40" fill="#00a8e1">
-            <text x="50%" y="62%" text-anchor="middle" font-size="23" font-weight="800" font-family="'Outfit', sans-serif" fill="#00a8e1">prime video</text>
-          </svg>
+      <button class="nav-item dock-logo-tile" id="app-3" data-app="prime" type="button">
+        <div class="dock-logo-wrap">
+          <img src="assets/logos/prime.svg" alt="Prime Video" class="dock-logo-img">
         </div>
-        <span class="app-tile-label">Prime Video</span>
+        <span class="dock-logo-label">Prime Video</span>
       </button>
 
       <!-- 5. Hoichoi -->
-      <button class="nav-item app-tile" id="app-hoichoi" type="button" data-app="hoichoi" data-color="#ff1744">
-        <div class="app-tile-logo-wrap">
-          <svg class="app-tile-logo" viewBox="0 0 100 40" fill="#ff1744">
-            <text x="50%" y="65%" text-anchor="middle" font-size="24" font-weight="900" font-family="'Outfit', sans-serif" fill="#ff1744">hoichoi</text>
-          </svg>
+      <button class="nav-item dock-logo-tile" id="app-4" data-app="hoichoi" type="button">
+        <div class="dock-logo-wrap">
+          <img src="assets/logos/hoichoi.svg" alt="Hoichoi" class="dock-logo-img">
         </div>
-        <span class="app-tile-label">Hoichoi</span>
+        <span class="dock-logo-label">Hoichoi</span>
       </button>
 
       <!-- 6. SonyLIV -->
-      <button class="nav-item app-tile" id="app-sonyliv" type="button" data-app="sonyliv" data-color="#38ef7d">
-        <div class="app-tile-logo-wrap">
-          <svg class="app-tile-logo" viewBox="0 0 100 40">
-            <text x="50%" y="65%" text-anchor="middle" font-size="22" font-weight="900" font-family="'Outfit', sans-serif" fill="#fff">SONY<tspan fill="#38ef7d">liv</tspan></text>
-          </svg>
+      <button class="nav-item dock-logo-tile" id="app-5" data-app="sonyliv" type="button">
+        <div class="dock-logo-wrap">
+          <img src="assets/logos/sonyliv.svg" alt="SonyLIV" class="dock-logo-img">
         </div>
-        <span class="app-tile-label">SonyLIV</span>
+        <span class="dock-logo-label">SonyLIV</span>
       </button>
 
       <!-- 7. ZEE5 -->
-      <button class="nav-item app-tile" id="app-zee5" type="button" data-app="zee5" data-color="#9b51e0">
-        <div class="app-tile-logo-wrap">
-          <svg class="app-tile-logo" viewBox="0 0 100 40">
-            <circle cx="30" cy="20" r="14" fill="#9b51e0"/>
-            <text x="30" y="26" text-anchor="middle" font-size="16" font-weight="900" fill="#fff">Z5</text>
-            <text x="68" y="26" text-anchor="middle" font-size="19" font-weight="800" font-family="'Outfit', sans-serif" fill="#fff">ZEE5</text>
-          </svg>
+      <button class="nav-item dock-logo-tile" id="app-6" data-app="zee5" type="button">
+        <div class="dock-logo-wrap">
+          <img src="assets/logos/zee5.svg" alt="ZEE5" class="dock-logo-img">
         </div>
-        <span class="app-tile-label">ZEE5</span>
+        <span class="dock-logo-label">ZEE5</span>
       </button>
 
       <!-- 8. Lionsgate Play -->
-      <button class="nav-item app-tile" id="app-lionsgate" type="button" data-app="lionsgate" data-color="#ffb300">
-        <div class="app-tile-logo-wrap">
-          <svg class="app-tile-logo" viewBox="0 0 120 40">
-            <text x="50%" y="54%" text-anchor="middle" font-size="15" font-weight="900" font-family="'Outfit', sans-serif" fill="#ffb300">LIONSGATE</text>
-            <text x="50%" y="82%" text-anchor="middle" font-size="11" font-weight="700" letter-spacing="2" font-family="'Outfit', sans-serif" fill="#fff">PLAY</text>
-          </svg>
+      <button class="nav-item dock-logo-tile" id="app-7" data-app="lionsgate" type="button">
+        <div class="dock-logo-wrap">
+          <img src="assets/logos/lionsgate.svg" alt="Lionsgate Play" class="dock-logo-img">
         </div>
-        <span class="app-tile-label">Lionsgate</span>
+        <span class="dock-logo-label">Lionsgate</span>
       </button>
     </div>
   </section>
 
-  <!-- 3. CARD SHUFFLE SHOWS (MOOD CARDS SECTION) -->
-  <section class="shuffle-section">
-    <div class="section-headline">
-      <div style="display:flex;align-items:baseline;">
-        <h2 class="section-title">Don't Know What to Watch?</h2>
-        <span class="section-subtitle">Shuffle through curated mood decks</span>
+  <!-- SECTION 1: MY FAVOURITES (CINEMATIC CHARACTER LINEUP) -->
+  <section class="favourites-section" aria-label="My Favourites">
+    <div class="section-headline-bar">
+      <div>
+        <h2 class="section-main-title">My Favourites</h2>
+        <span class="section-sub-title">Your handpicked iconic characters & shows</span>
       </div>
-      <div class="section-action-hint">
-        <span>Press</span> <span class="key-pill">OK</span> <span>to spin</span>
-        <span>·</span> <span class="key-pill">▲ / ▼</span> <span>next mood</span>
+      <div class="section-hint-pills">
+        <span>Press</span> <span class="key-pill">OK</span> <span>to watch</span>
+        <span>·</span> <span class="key-pill">◄ / ►</span> <span>select</span>
       </div>
     </div>
 
-    <div class="mood-deck-container">
-      <!-- Left: Stacked Deck Card -->
-      <div class="mood-deck-stage" id="mood-deck-stage">
-        <!-- Deck cards rendered dynamically in JS -->
+    <div class="fav-meta-bar">
+      <div class="fav-title-row">
+        <h3 class="fav-active-title" id="fav-active-title">The Mentalist</h3>
+        <span class="fav-app-badge" id="fav-active-app">Prime Video</span>
+      </div>
+      <div class="fav-quote-text" id="fav-active-quote">“A mentalist is a master manipulator of thought and behavior.”</div>
+    </div>
+
+    <div class="fav-lineup-stage" id="fav-lineup-stage">
+      <!-- 1. Patrick Jane (Front Row) -->
+      <div class="fav-char-card row-front nav-item" id="fav-0" data-index="0" tabindex="0">
+        <img src="assets/characters/patrick_jane.png" alt="Patrick Jane" class="fav-char-img">
+        <div class="fav-bottom-fade"></div>
+        <div class="fav-char-name-label">Patrick Jane</div>
       </div>
 
-      <!-- Right: Slot Machine Recommendation Screen -->
-      <div class="shuffle-stage-panel" id="shuffle-stage-panel">
-        <div class="shuffle-reel-window">
-          <div class="shuffle-strip" id="shuffle-reel-strip">
-            <!-- Posters roll here -->
-          </div>
-        </div>
-        <div class="shuffle-details">
-          <div class="shuffle-status-tag" id="shuffle-status-tag">
-            <svg style="width:14px;height:14px;fill:currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-            <span id="shuffle-status-text">Pick a Mood or Spin</span>
-          </div>
-          <h3 class="shuffle-title" id="shuffle-title">Panchayat</h3>
-          <div class="shuffle-meta">
-            <span class="meta-app-badge" id="shuffle-app-badge">Prime Video</span>
-            <span id="shuffle-genre">Comedy · Drama</span>
-            <span>·</span>
-            <span id="shuffle-rating">★ 8.9</span>
-          </div>
-          <p class="shuffle-overview" id="shuffle-overview">An engineering graduate takes up a job as a Panchayat secretary in a remote Indian village, encountering eccentric residents and local challenges.</p>
-          <div class="shuffle-controls">
-            <button class="nav-item btn-shuffle" id="btn-shuffle-play" type="button">
-              <svg style="width:18px;height:18px;fill:currentColor" viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19"/></svg>
-              <span>Watch Now</span>
-            </button>
-            <button class="nav-item btn-spin-again" id="btn-shuffle-spin" type="button">
-              <svg style="width:16px;height:16px;fill:currentColor;margin-right:6px" viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
-              <span>Spin Again</span>
-            </button>
-          </div>
-          <div class="countdown-bar-wrap" id="countdown-bar-wrap">
-            <div class="countdown-progress" id="countdown-progress"></div>
-          </div>
-        </div>
+      <!-- 2. Walter White (Back Row) -->
+      <div class="fav-char-card row-back nav-item" id="fav-1" data-index="1" tabindex="0">
+        <img src="assets/characters/walter_white.png" alt="Walter White" class="fav-char-img">
+        <div class="fav-bottom-fade"></div>
+        <div class="fav-char-name-label">Walter White</div>
+      </div>
+
+      <!-- 3. Spider-Man (Back Row) -->
+      <div class="fav-char-card row-back nav-item" id="fav-2" data-index="2" tabindex="0">
+        <img src="assets/characters/spiderman.png" alt="Spider-Man" class="fav-char-img">
+        <div class="fav-bottom-fade"></div>
+        <div class="fav-char-name-label">Spider-Man</div>
+      </div>
+
+      <!-- 4. Sheldon Cooper (Back Row) -->
+      <div class="fav-char-card row-back nav-item" id="fav-3" data-index="3" tabindex="0">
+        <img src="assets/characters/sheldon.png" alt="Sheldon Cooper" class="fav-char-img">
+        <div class="fav-bottom-fade"></div>
+        <div class="fav-char-name-label">Sheldon Cooper</div>
+      </div>
+
+      <!-- 5. Master JD (Front Row) -->
+      <div class="fav-char-card row-front nav-item" id="fav-4" data-index="4" tabindex="0">
+        <img src="assets/characters/master_jd.png" alt="JD" class="fav-char-img">
+        <div class="fav-bottom-fade"></div>
+        <div class="fav-char-name-label">JD</div>
+      </div>
+
+      <!-- 6. Barry Allen (Front Row) -->
+      <div class="fav-char-card row-front nav-item" id="fav-5" data-index="5" tabindex="0">
+        <img src="assets/characters/the_flash.png" alt="The Flash" class="fav-char-img">
+        <div class="fav-bottom-fade"></div>
+        <div class="fav-char-name-label">The Flash</div>
       </div>
     </div>
   </section>
 
-  <!-- 4. CINEMATIC POSTER CAROUSEL (BROWSE STRIP) -->
-  <section class="carousel-section">
-    <div class="section-headline">
-      <div style="display:flex;align-items:baseline;">
-        <h2 class="section-title">Trending Across Your Apps</h2>
-        <span class="section-subtitle">Top movies & series available on your STB</span>
+  <!-- SECTION 2: MOOD CARD DECK ("Don't have time to browse?") -->
+  <section class="mood-section" aria-label="Mood Cards Deck">
+    <div class="section-headline-bar">
+      <div>
+        <h2 class="section-main-title">Don't Have Time to Browse?</h2>
+        <span class="section-sub-title">Pick a mood or spin through recommendations</span>
       </div>
-      <div class="section-action-hint">
-        <span>Press</span> <span class="key-pill">◄ / ►</span> <span>to browse</span>
-        <span>·</span> <span class="key-pill">OK</span> <span>to open</span>
+      <div class="section-hint-pills">
+        <span>◄ Nope</span>
+        <span>·</span>
+        <span>Right / OK = Yes (Reel)</span>
       </div>
     </div>
 
-    <div class="carousel-track-wrapper">
+    <!-- 3D Stacked Deck Stage -->
+    <div class="mood-deck-stage" id="mood-deck-stage">
+      <!-- Rendered dynamically by MOOD_CONTROLLER -->
+    </div>
+    <div class="mood-glow-ellipse" id="mood-glow-ellipse"></div>
+
+    <!-- Pointer Controls for Mood Card -->
+    <div class="mood-controls-wrap">
+      <button class="mood-action-btn" id="btn-mood-nope" type="button">‹ nope</button>
+      <button class="mood-action-btn" id="btn-mood-yes" type="button">yes ›</button>
+    </div>
+
+    <!-- Slot Machine Reel Stage (shown during shuffle) -->
+    <div class="shuffle-reel-stage" id="shuffle-reel-stage">
+      <div class="reel-track" id="reel-track">
+        <!-- Posters cycle here -->
+      </div>
+    </div>
+
+    <!-- Countdown & Settle Panel -->
+    <div class="shuffle-countdown-panel" id="shuffle-countdown-panel">
+      <h3 class="countdown-title" id="countdown-title">Panchayat</h3>
+      <div class="countdown-meta">
+        <span class="fav-app-badge" id="countdown-app-badge">Prime Video</span>
+      </div>
+      <div class="countdown-sub" id="countdown-subtitle">Opening in 3…</div>
+      <div class="countdown-progress-wrap">
+        <div class="countdown-progress-bar" id="countdown-progress-bar"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3: TRENDING OTT POSTER CAROUSEL -->
+  <section class="carousel-section" aria-label="Trending Shows">
+    <div class="section-headline-bar">
+      <div>
+        <h2 class="section-main-title">Trending Across Your Apps</h2>
+        <span class="section-sub-title">Top movies & series available on your STB</span>
+      </div>
+      <div class="section-hint-pills">
+        <button class="mood-action-btn" id="btn-carousel-left" type="button" style="padding:2px 8px;">‹</button>
+        <span>Browse</span>
+        <button class="mood-action-btn" id="btn-carousel-right" type="button" style="padding:2px 8px;">›</button>
+      </div>
+    </div>
+
+    <div class="carousel-viewport">
       <div class="carousel-track" id="carousel-track">
-        <!-- Rendered dynamically -->
+        <!-- Rendered dynamically by CAROUSEL_CONTROLLER -->
       </div>
     </div>
   </section>
 
-  <!-- 5. SYSTEM STATUS & INPUT HUD -->
-  <footer class="system-overlay">
-    <div class="diag-strip">
-      <div class="diag-item">
-        <span>Hardware Input:</span>
-        <span class="pill-active" id="diag-dpad-status-pill">Active (DPAD)</span>
+  <!-- SYSTEM STATUS FOOTER STRIP -->
+  <footer class="system-footer">
+    <div class="system-status-bar">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span>Input Mode:</span>
+        <span class="status-pill pill-green" id="footer-input-pill">Hardware DPAD</span>
       </div>
-      <div class="diag-item">
-        <span>Remote Key:</span>
-        <span class="diag-val" id="diag-last-key">None</span>
+      <div>
+        <span>Platform:</span>
+        <strong style="color:#fff;">JioOS 25.1.9</strong>
       </div>
-      <div class="diag-item">
-        <span>Target App:</span>
-        <span class="diag-val" id="diag-active-target">JioTV+</span>
+      <div>
+        <span>JMSD200Av2</span>
       </div>
-      <div class="diag-item">
-        <span>Launch Method:</span>
-        <span class="diag-val" id="diag-launch-method">Native Scheme</span>
+      <div>
+        <button class="diag-btn" onclick="window.DIAGNOSTICS.toggle()" type="button">Diagnostics [D]</button>
       </div>
     </div>
   </footer>
 
-</div>
+</main>
 
-<!-- 6. REMOTE INPUT DIAGNOSTICS OVERLAY -->
-<div class="diag-overlay" id="diag-overlay">
-  <div class="diag-header">
-    <span class="diag-header-title">🔍 Remote Input Diagnostics</span>
-    <button class="diag-toggle-btn" id="diag-close-btn" type="button">Hide [D]</button>
-  </div>
-  <div class="diag-mode-row">
-    <div class="diag-mode-badge mode-keyboard" id="diag-mode-kbd">
-      <span class="diag-mode-count" id="diag-kbd-count">0</span>
-      ⌨ Keyboard Events
-    </div>
-    <div class="diag-mode-badge mode-mouse" id="diag-mode-mouse">
-      <span class="diag-mode-count" id="diag-mouse-count">0</span>
-      🖱 Mouse Events
-    </div>
-  </div>
-  <div class="diag-stats">
-    <div class="diag-stat-item">
-      <div class="diag-stat-label">Input Mode</div>
-      <div class="diag-stat-val" id="diag-input-mode">DETECTING…</div>
-    </div>
-    <div class="diag-stat-item">
-      <div class="diag-stat-label">Arrow Keys?</div>
-      <div class="diag-stat-val" id="diag-arrows-status">Unknown</div>
-    </div>
-    <div class="diag-stat-item">
-      <div class="diag-stat-label">Nav System</div>
-      <div class="diag-stat-val" id="diag-nav-system">DPAD</div>
-    </div>
-  </div>
-  <div class="diag-log-container" id="diag-log-container">
-    <!-- Event entries injected here -->
-  </div>
-  <div class="diag-focus-bar">
-    <span class="diag-focus-label">Focused:</span>
-    <span class="diag-focus-val" id="diag-focus-el">body</span>
-  </div>
-</div>
-<div class="diag-toggle-hint" id="diag-toggle-hint">Press [D] to toggle diagnostics</div>
-
-<!-- TV Toast Notification -->
+<!-- TV TOAST NOTIFICATION -->
 <div class="tv-toast" id="tv-toast">
   <svg style="width:20px;height:20px;fill:var(--accent-gold)" viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19"/></svg>
   <span id="toast-message">Opening app...</span>
 </div>
 
+<!-- DEVELOPER DIAGNOSTICS OVERLAY (HIDDEN BY DEFAULT) -->
+<aside class="diag-overlay hidden" id="diag-overlay" aria-label="Developer Diagnostics">
+  <div class="diag-header">
+    <span class="diag-title">🔍 Remote Input Diagnostics</span>
+    <button class="diag-btn" onclick="window.DIAGNOSTICS.toggle()" type="button">Hide [D]</button>
+  </div>
+  <div class="diag-mode-row">
+    <div class="diag-badge mode-kbd" id="diag-mode-kbd">
+      <span style="font-size:18px;display:block;" id="diag-kbd-count">0</span>
+      ⌨ Keyboard Events
+    </div>
+    <div class="diag-badge mode-mouse" id="diag-mode-mouse">
+      <span style="font-size:18px;display:block;" id="diag-mouse-count">0</span>
+      🖱 Mouse Events
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 16px;font-size:11px;">
+    <div>Mode: <strong id="diag-input-mode" style="color:#ffcb05;">DETECTING</strong></div>
+    <div>Arrows Received: <strong id="diag-arrows-status" style="color:#38d39f;">Unknown</strong></div>
+    <div>Active Section: <strong id="diag-active-section">HOME_DOCK</strong></div>
+    <div>Focused Target: <strong id="diag-focus-el">app-0</strong></div>
+    <div style="grid-column:1 / -1;">Last Event: <span id="diag-last-event" style="color:#a8bce0;">None</span></div>
+    <div style="grid-column:1 / -1;">Last Launch: <span id="diag-last-launch" style="color:#38d39f;">None</span></div>
+  </div>
+  <div class="diag-log-container" id="diag-log-container">
+    <!-- Log rows injected here -->
+  </div>
+</aside>
+
+<!-- JAVASCRIPT MODULE PIPELINE -->
+<script src="js/media-data.js"></script>
+<script src="js/app-launcher.js"></script>
+<script src="js/diagnostics.js"></script>
+<script src="js/focus-manager.js"></script>
+<script src="js/mood-controller.js"></script>
+<script src="js/shuffle-engine.js"></script>
+<script src="js/carousel-controller.js"></script>
+<script src="js/input-controller.js"></script>
+
 <script>
 (function() {
   'use strict';
 
-  // ============================================================
-  // REMOTE INPUT DIAGNOSTICS SYSTEM
-  // Captures ALL input events to determine how JioSphere
-  // delivers remote-control inputs (keyboard vs mouse)
-  // ============================================================
-
-  var DIAG_MAX_ENTRIES = 40;
-  var diagState = {
-    kbdCount: 0,
-    mouseCount: 0,
-    arrowKeysDetected: false,
-    mouseMovementDetected: false,
-    inputMode: 'DETECTING',   // DETECTING, KEYBOARD, MOUSE, HYBRID
-    navSystem: 'DPAD',        // DPAD or POINTER
-    mouseMoveAccum: 0,        // accumulated mouse movement pixels
-    lastMouseMoveTime: 0,
-    visible: true
-  };
-
-  // Diagnostics DOM refs (safe-get)
-  function dEl(id) { return document.getElementById(id); }
-
-  function diagLog(type, detail) {
-    var container = dEl('diag-log-container');
-    if (!container) return;
-
-    var now = new Date();
-    var ts = (now.getHours() < 10 ? '0' : '') + now.getHours() + ':' +
-             (now.getMinutes() < 10 ? '0' : '') + now.getMinutes() + ':' +
-             (now.getSeconds() < 10 ? '0' : '') + now.getSeconds();
-
-    var typeClass = 'type-key';
-    if (type === 'mouse' || type === 'mousemove') typeClass = 'type-mouse';
-    else if (type === 'focus') typeClass = 'type-focus';
-    else if (type === 'click') typeClass = 'type-click';
-
-    var entry = document.createElement('div');
-    entry.className = 'diag-log-entry';
-    entry.innerHTML = '<span class="diag-log-time">' + ts + '</span>' +
-      '<span class="diag-log-type ' + typeClass + '">' + type + '</span>' +
-      '<span class="diag-log-detail">' + detail + '</span>';
-
-    container.insertBefore(entry, container.firstChild);
-
-    // Trim old entries
-    while (container.children.length > DIAG_MAX_ENTRIES) {
-      container.removeChild(container.lastChild);
-    }
-  }
-
-  function updateDiagCounters() {
-    var kbdCountEl = dEl('diag-kbd-count');
-    var mouseCountEl = dEl('diag-mouse-count');
-    var modeEl = dEl('diag-input-mode');
-    var arrowsEl = dEl('diag-arrows-status');
-    var navEl = dEl('diag-nav-system');
-    var kbdBadge = dEl('diag-mode-kbd');
-    var mouseBadge = dEl('diag-mode-mouse');
-    var dpadPill = dEl('diag-dpad-status-pill');
-
-    if (kbdCountEl) kbdCountEl.textContent = diagState.kbdCount;
-    if (mouseCountEl) mouseCountEl.textContent = diagState.mouseCount;
-    if (modeEl) modeEl.textContent = diagState.inputMode;
-    if (arrowsEl) arrowsEl.textContent = diagState.arrowKeysDetected ? '✓ YES' : '✗ No';
-    if (navEl) navEl.textContent = diagState.navSystem;
-
-    if (dpadPill) {
-      if (diagState.inputMode === 'MOUSE') {
-        dpadPill.textContent = 'Pointer Mode';
-        dpadPill.style.color = '#6391ff';
-        dpadPill.style.borderColor = 'rgba(99, 145, 255, 0.5)';
-        dpadPill.style.background = 'rgba(99, 145, 255, 0.2)';
-      } else if (diagState.inputMode === 'HYBRID') {
-        dpadPill.textContent = 'Hybrid (DPAD+PTR)';
-        dpadPill.style.color = '#ffcb05';
-        dpadPill.style.borderColor = 'rgba(255, 203, 5, 0.5)';
-        dpadPill.style.background = 'rgba(255, 203, 5, 0.2)';
-      } else {
-        dpadPill.textContent = 'DPAD Active';
-        dpadPill.style.color = '#38d39f';
-        dpadPill.style.borderColor = 'rgba(56, 211, 159, 0.5)';
-        dpadPill.style.background = 'rgba(56, 211, 159, 0.2)';
-      }
-    }
-
-    // Highlight active mode badge
-    if (kbdBadge) {
-      kbdBadge.classList.toggle('mode-active', diagState.inputMode === 'KEYBOARD' || diagState.inputMode === 'HYBRID');
-    }
-    if (mouseBadge) {
-      mouseBadge.classList.toggle('mode-active', diagState.inputMode === 'MOUSE' || diagState.inputMode === 'HYBRID');
-    }
-  }
-
-  function updateFocusDisplay() {
-    var el = document.activeElement;
-    var focusEl = dEl('diag-focus-el');
-    if (!focusEl) return;
-    var desc = el ? (el.tagName.toLowerCase() +
-      (el.id ? '#' + el.id : '') +
-      (el.className ? '.' + el.className.split(' ')[0] : '')) : 'none';
-    focusEl.textContent = desc;
-  }
-
-  function determineInputMode() {
-    if (diagState.arrowKeysDetected && diagState.mouseMovementDetected) {
-      diagState.inputMode = 'HYBRID';
-      diagState.navSystem = 'DPAD+PTR';
-    } else if (diagState.arrowKeysDetected) {
-      diagState.inputMode = 'KEYBOARD';
-      diagState.navSystem = 'DPAD';
-    } else if (diagState.mouseMovementDetected) {
-      diagState.inputMode = 'MOUSE';
-      diagState.navSystem = 'POINTER';
-    }
-    updateDiagCounters();
-  }
-
-  // --- KEYBOARD EVENT CAPTURE (capture phase) ---
-  function onDiagKeyDown(e) {
-    var key = e.key || '';
-    var code = e.keyCode || e.which || 0;
-
-    diagState.kbdCount++;
-
-    // Check if this is an arrow key
-    if (key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight' ||
-        key === 'Up' || key === 'Down' || key === 'Left' || key === 'Right' ||
-        code === 37 || code === 38 || code === 39 || code === 40 ||
-        code === 19 || code === 20 || code === 21 || code === 22) {
-      diagState.arrowKeysDetected = true;
-    }
-
-    var detail = 'key="' + key + '" code=' + code +
-      (e.code ? ' e.code="' + e.code + '"' : '') +
-      (e.repeat ? ' [REPEAT]' : '');
-    diagLog('keydown', detail);
-    determineInputMode();
-  }
-
-  function onDiagKeyUp(e) {
-    var key = e.key || '';
-    var code = e.keyCode || e.which || 0;
-    diagLog('keyup', 'key="' + key + '" code=' + code);
-  }
-
-  // --- MOUSE EVENT CAPTURE ---
-  var mouseThrottleTimer = null;
-  function onDiagMouseMove(e) {
-    diagState.mouseCount++;
-    var now = Date.now();
-
-    // Accumulate movement
-    if (diagState.lastMouseMoveTime > 0) {
-      var dx = Math.abs(e.movementX || 0);
-      var dy = Math.abs(e.movementY || 0);
-      diagState.mouseMoveAccum += dx + dy;
-    }
-    diagState.lastMouseMoveTime = now;
-
-    // If we've seen >30px of accumulated movement, consider mouse active
-    if (diagState.mouseMoveAccum > 30) {
-      diagState.mouseMovementDetected = true;
-      determineInputMode();
-
-      // Activate pointer navigation mode
-      activatePointerNav(e);
-    }
-
-    // Throttled log (every 300ms max)
-    if (!mouseThrottleTimer) {
-      mouseThrottleTimer = setTimeout(function() {
-        mouseThrottleTimer = null;
-        diagLog('mousemove', 'x=' + e.clientX + ' y=' + e.clientY +
-          ' accum=' + Math.round(diagState.mouseMoveAccum) + 'px');
-        updateDiagCounters();
-      }, 300);
-    }
-  }
-
-  function onDiagMouseDown(e) {
-    diagState.mouseCount++;
-    diagLog('mousedown', 'btn=' + e.button + ' x=' + e.clientX + ' y=' + e.clientY +
-      ' target=' + (e.target.tagName + (e.target.id ? '#' + e.target.id : '')));
-    updateDiagCounters();
-  }
-
-  function onDiagMouseUp(e) {
-    diagLog('mouseup', 'btn=' + e.button + ' x=' + e.clientX + ' y=' + e.clientY);
-  }
-
-  function onDiagClick(e) {
-    diagLog('click', 'x=' + e.clientX + ' y=' + e.clientY +
-      ' target=' + (e.target.tagName + (e.target.id ? '#' + e.target.id : '')));
-  }
-
-  // --- FOCUS TRACKING ---
-  function onDiagFocusIn(e) {
-    var el = e.target;
-    var desc = el.tagName.toLowerCase() +
-      (el.id ? '#' + el.id : '') +
-      (el.className ? '.' + el.className.split(' ')[0] : '');
-    diagLog('focus', desc);
-    updateFocusDisplay();
-  }
-
-  // --- POINTER-TO-FOCUS NAVIGATION (for mouse-only mode) ---
-  function activatePointerNav(e) {
-    // If pointer is inside the diagnostics overlay, do not snap focus
-    var overlay = dEl('diag-overlay');
-    if (overlay && overlay.contains(e.target)) return;
-
-    // 1. Direct hit or parent walk
-    var hitEl = document.elementFromPoint(e.clientX, e.clientY);
-    var navItem = null;
-    if (hitEl) {
-      if (hitEl.closest) {
-        navItem = hitEl.closest('.nav-item');
-      } else {
-        var walker = hitEl;
-        while (walker && walker !== document.body) {
-          if (walker.classList && walker.classList.contains('nav-item')) {
-            navItem = walker;
-            break;
-          }
-          walker = walker.parentElement;
-        }
-      }
-    }
-
-    // 2. Proximity snapping: if pointer is slightly off an app tile or poster, snap to nearest within 80px
-    if (!navItem) {
-      var candidates = document.querySelectorAll('.nav-item');
-      var minDist = 80;
-      for (var i = 0; i < candidates.length; i++) {
-        var c = candidates[i];
-        if (c.disabled || c.offsetParent === null) continue;
-        var r = c.getBoundingClientRect();
-        if (r.width === 0 || r.height === 0) continue;
-        var dx = Math.max(r.left - e.clientX, 0, e.clientX - r.right);
-        var dy = Math.max(r.top - e.clientY, 0, e.clientY - r.bottom);
-        var dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < minDist) {
-          minDist = dist;
-          navItem = c;
-        }
-      }
-    }
-
-    if (navItem && navItem !== document.activeElement) {
-      navItem.focus({ preventScroll: true });
-    }
-  }
-
-  // --- MOUSEENTER HOVER-FOCUS BRIDGE ---
-  // Applied to all .nav-item elements to enable hover=focus
-  function applyHoverFocusBridge() {
-    var items = document.querySelectorAll('.nav-item');
-    items.forEach(function(item) {
-      if (item._hoverBridgeApplied) return;
-      item._hoverBridgeApplied = true;
-      item.addEventListener('mouseenter', function() {
-        if (diagState.mouseMovementDetected) {
-          this.focus({ preventScroll: true });
-        }
-      });
-    });
-  }
-
-  // --- TOGGLE DIAGNOSTICS PANEL ---
-  function toggleDiagPanel() {
-    var overlay = dEl('diag-overlay');
-    var hint = dEl('diag-toggle-hint');
-    if (!overlay) return;
-    diagState.visible = !diagState.visible;
-    overlay.classList.toggle('hidden', !diagState.visible);
-    if (hint) hint.classList.toggle('hidden', diagState.visible);
-  }
-
-  // Register all diagnostic listeners (capture phase for key events)
-  window.addEventListener('keydown', onDiagKeyDown, true);
-  window.addEventListener('keyup', onDiagKeyUp, true);
-  document.addEventListener('mousemove', onDiagMouseMove, { passive: true, capture: true });
-  document.addEventListener('mousedown', onDiagMouseDown, true);
-  document.addEventListener('mouseup', onDiagMouseUp, true);
-  document.addEventListener('click', onDiagClick, true);
-  document.addEventListener('focusin', onDiagFocusIn, true);
-
-  // Toggle with 'D' key (not when focused on input)
-  window.addEventListener('keydown', function(e) {
-    if ((e.key === 'd' || e.key === 'D') && !e.ctrlKey && !e.altKey && !e.metaKey) {
-      var tag = document.activeElement ? document.activeElement.tagName : '';
-      if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
-        toggleDiagPanel();
-      }
-    }
-  });
-
-  // Close button
-  setTimeout(function() {
-    var closeBtn = dEl('diag-close-btn');
-    if (closeBtn) {
-      closeBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        toggleDiagPanel();
-      });
-    }
-  }, 50);
-
-  // Hide toggle hint after 5s
-  setTimeout(function() {
-    var hint = dEl('diag-toggle-hint');
-    if (hint && diagState.visible) hint.classList.add('hidden');
-  }, 5000);
-
-  // Initial counters
-  updateDiagCounters();
-  updateFocusDisplay();
-
-  // ============================================================
-  // END DIAGNOSTICS SYSTEM
-  // ============================================================
-
-  // --- 1. APPS REGISTRY & VERIFIED INTENT LAUNCHERS ---
-  var APPS = {
-    jiotv: {
-      id: 'jiotv',
-      name: 'JioTV+',
-      color: '#ff3366',
-      tagline: '“India’s favourite live television and OTT aggregator.”',
-      sub: '550+ Live Channels · Verified Native Scheme',
-      uri: 'jiotvplus://',
-      pkg: 'com.jio.media.jiotvplus'
-    },
-    hotstar: {
-      id: 'hotstar',
-      name: 'JioHotstar',
-      color: '#5f9eff',
-      tagline: '“Home of Live Cricket, Blockbusters and HBO Originals.”',
-      sub: 'Android TV App · Verified Direct Intent',
-      uri: 'intent://www.hotstar.com/#Intent;scheme=https;package=in.startv.hotstar;action=android.intent.action.VIEW;end',
-      pkg: 'in.startv.hotstar'
-    },
-    youtube: {
-      id: 'youtube',
-      name: 'YouTube',
-      color: '#ff3333',
-      tagline: '“Stream 4K videos, creators, music and documentaries.”',
-      sub: 'Android TV App · Verified Direct Intent',
-      uri: 'intent://www.youtube.com/#Intent;scheme=https;package=com.google.android.youtube.tv;action=android.intent.action.VIEW;end',
-      pkg: 'com.google.android.youtube.tv'
-    },
-    prime: {
-      id: 'prime',
-      name: 'Prime Video',
-      color: '#00a8e1',
-      tagline: '“Run, Barry, run. Watch Prime Originals and Exclusives.”',
-      sub: 'Android TV App · Verified P10 Deep Link Intent',
-      uri: 'intent://app.primevideo.com/#Intent;scheme=https;package=com.amazon.amazonvideo.livingroom;action=android.intent.action.VIEW;end',
-      pkg: 'com.amazon.amazonvideo.livingroom'
-    },
-    hoichoi: {
-      id: 'hoichoi',
-      name: 'Hoichoi',
-      color: '#ff1744',
-      tagline: '“Best of Bengali movies, web series and world premieres.”',
-      sub: 'Android TV App · com.viewlift.hoichoi',
-      uri: 'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.viewlift.hoichoi;end',
-      pkg: 'com.viewlift.hoichoi'
-    },
-    sonyliv: {
-      id: 'sonyliv',
-      name: 'SonyLIV',
-      color: '#38ef7d',
-      tagline: '“Scam 1992, Gullak, Champions League and Live Sports.”',
-      sub: 'Android TV App · com.sonyliv',
-      uri: 'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.sonyliv;end',
-      pkg: 'com.sonyliv'
-    },
-    zee5: {
-      id: 'zee5',
-      name: 'ZEE5',
-      color: '#9b51e0',
-      tagline: '“Exclusive Indian originals, blockbusters and 12+ languages.”',
-      sub: 'Android TV App · com.graymatrix.did',
-      uri: 'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.graymatrix.did;end',
-      pkg: 'com.graymatrix.did'
-    },
-    lionsgate: {
-      id: 'lionsgate',
-      name: 'Lionsgate Play',
-      color: '#ffb300',
-      tagline: '“John Wick, Hollywood blockbusters and prestige cinema.”',
-      sub: 'Android TV App · com.lionsgateplay.videoapp',
-      uri: 'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.lionsgateplay.videoapp;end',
-      pkg: 'com.lionsgateplay.videoapp'
-    }
-  };
-
-  // --- 2. MOOD DECKS DATA ---
-  var MOODS = [
-    {
-      id: 'mood-bengali',
-      name: 'Bengali Favourites',
-      count: '16 Titles',
-      color: '#ff1744',
-      badge: 'Regional Cinema',
-      bgGrad: 'linear-gradient(135deg, #40050e 0%, #100407 100%)',
-      posters: [
-        'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&auto=format&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500&auto=format&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&auto=format&fit=crop&q=80'
-      ],
-      titles: [
-        { title: 'Byomkesh O Durgo Rohosyo', app: 'hoichoi', genre: 'Mystery · Thriller', rating: '★ 8.4', overview: 'Satyanweshi Byomkesh Bakshi and Ajit investigate an eerie mystery unfolding inside an ancient fort in Madhya Pradesh.', poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&auto=format&fit=crop&q=80' },
-        { title: 'Eken Babu: The Movie', app: 'hoichoi', genre: 'Comedy · Detective', rating: '★ 8.1', overview: 'The eccentric, food-loving detective Ekendra Sen solves a complex murder case in the picturesque hills of Darjeeling.', poster: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500&auto=format&fit=crop&q=80' },
-        { title: 'Feluda: Gangtokey Gondogol', app: 'zee5', genre: 'Adventure · Classic', rating: '★ 8.7', overview: 'Pradosh C. Mitter tackles a counterfeit artifact ring in the mountains of Sikkim.', poster: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&auto=format&fit=crop&q=80' }
-      ]
-    },
-    {
-      id: 'mood-trending',
-      name: 'Trending Now',
-      count: '24 Titles',
-      color: '#ffcb05',
-      badge: 'Hot This Week',
-      bgGrad: 'linear-gradient(135deg, #3d2f00 0%, #0c0a02 100%)',
-      posters: [
-        'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=500&auto=format&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&auto=format&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=500&auto=format&fit=crop&q=80'
-      ],
-      titles: [
-        { title: 'Panchayat Season 3', app: 'prime', genre: 'Comedy · Drama', rating: '★ 8.9', overview: 'Abhishek Tripathi navigates elections and village politics in Phulera as tensions peak before the new season.', poster: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=500&auto=format&fit=crop&q=80' },
-        { title: 'Scam 1992: The Harshad Mehta Story', app: 'sonyliv', genre: 'Biography · Crime', rating: '★ 9.3', overview: 'Set in 1980s and 90s Bombay, Harshad Mehta takes the stock market to dizzying heights and catastrophic fall.', poster: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&auto=format&fit=crop&q=80' },
-        { title: 'Special OPS', app: 'hotstar', genre: 'Action · Espionage', rating: '★ 8.6', overview: 'Himmat Singh leads a covert RAW task force that tracks down the mastermind behind the Parliament attack.', poster: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=500&auto=format&fit=crop&q=80' }
-      ]
-    },
-    {
-      id: 'mood-action',
-      name: 'Action Night',
-      count: '19 Titles',
-      color: '#e5484d',
-      badge: 'High Adrenaline',
-      bgGrad: 'linear-gradient(135deg, #38080a 0%, #0a0304 100%)',
-      posters: [
-        'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&auto=format&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=500&auto=format&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&auto=format&fit=crop&q=80'
-      ],
-      titles: [
-        { title: 'John Wick: Chapter 4', app: 'lionsgate', genre: 'Action · Thriller', rating: '★ 8.0', overview: 'John Wick uncovers a path to defeating The High Table, facing a new enemy with powerful alliances across the globe.', poster: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&auto=format&fit=crop&q=80' },
-        { title: 'The Family Man', app: 'prime', genre: 'Action · Drama', rating: '★ 8.8', overview: 'Srikant Tiwari balances family responsibilities while working for a special cell of the National Investigation Agency.', poster: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=500&auto=format&fit=crop&q=80' }
-      ]
-    },
-    {
-      id: 'mood-livetv',
-      name: 'Live TV & Sports',
-      count: '100+ Channels',
-      color: '#38d39f',
-      badge: 'Instant Stream',
-      bgGrad: 'linear-gradient(135deg, #053322 0%, #030d09 100%)',
-      posters: [
-        'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=500&auto=format&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=500&auto=format&fit=crop&q=80',
-        'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=500&auto=format&fit=crop&q=80'
-      ],
-      titles: [
-        { title: 'Live Cricket on Hotstar', app: 'hotstar', genre: 'Live Sports', rating: '★ 9.5', overview: 'Watch live international cricket tournaments, IPL action and ultra HD commentary.', poster: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=500&auto=format&fit=crop&q=80' },
-        { title: 'JioTV+ Electronic Program Guide', app: 'jiotv', genre: 'Linear Live TV', rating: '★ 9.0', overview: 'Browse over 550 live television channels with live rewind and cloud catch-up.', poster: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=500&auto=format&fit=crop&q=80' }
-      ]
-    }
-  ];
-
-  // --- 3. CAROUSEL POSTER STRIP ---
-  var CAROUSEL_ITEMS = [
-    { title: 'Panchayat', app: 'prime', genre: 'Comedy · Drama', year: '2024', img: 'https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=500&auto=format&fit=crop&q=80' },
-    { title: 'Scam 1992', app: 'sonyliv', genre: 'Financial Crime', year: '2020', img: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&auto=format&fit=crop&q=80' },
-    { title: 'Byomkesh Bakshi', app: 'hoichoi', genre: 'Period Mystery', year: '2023', img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&auto=format&fit=crop&q=80' },
-    { title: 'John Wick 4', app: 'lionsgate', genre: 'Neo-Noir Action', year: '2023', img: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=500&auto=format&fit=crop&q=80' },
-    { title: 'Taaza Khabar', app: 'hotstar', genre: 'Thriller · Fantasy', year: '2024', img: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=500&auto=format&fit=crop&q=80' },
-    { title: 'Gullak', app: 'sonyliv', genre: 'Heartfelt Family', year: '2024', img: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&auto=format&fit=crop&q=80' },
-    { title: 'The Family Man', app: 'prime', genre: 'Spy Thriller', year: '2021', img: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=500&auto=format&fit=crop&q=80' },
-    { title: 'Mukhosh', app: 'hoichoi', genre: 'Psychological Thriller', year: '2021', img: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500&auto=format&fit=crop&q=80' }
-  ];
-
-  // State
-  var currentMoodIndex = 0;
-  var currentSpinning = false;
-  var countdownTimer = null;
-  var currentPickedTitle = null;
-
-  // DOM Elements
-  var clockEl = document.getElementById('clock-display');
-  var dockTaglineEl = document.getElementById('dock-tagline');
-  var dockAppSubEl = document.getElementById('dock-app-sub');
-  var moodDeckStageEl = document.getElementById('mood-deck-stage');
-  var shuffleStripEl = document.getElementById('shuffle-reel-strip');
-  var carouselTrackEl = document.getElementById('carousel-track');
-  var toastEl = document.getElementById('tv-toast');
-  var toastMsgEl = document.getElementById('toast-message');
-  var ambientGlowEl = document.getElementById('ambient-glow');
-  var diagLastKeyEl = document.getElementById('diag-last-key');
-  var diagActiveTargetEl = document.getElementById('diag-active-target');
-  var diagLaunchMethodEl = document.getElementById('diag-launch-method');
-
-  // --- CLOCK UPDATE ---
+  // 1. CLOCK (ticks on system minute)
   function updateClock() {
     var d = new Date();
     var h = d.getHours();
     var m = d.getMinutes();
     var str = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
-    if (clockEl) clockEl.textContent = str;
+    var el = document.getElementById('clock-text');
+    if (el) el.textContent = str;
   }
   setInterval(updateClock, 1000);
   updateClock();
 
-  // --- TOAST NOTIFICATION ---
-  function showToast(msg) {
-    if (!toastEl) return;
-    toastMsgEl.textContent = msg;
-    toastEl.classList.add('visible');
-    setTimeout(function() {
-      toastEl.classList.remove('visible');
-    }, 2800);
-  }
-
-  // --- DISPATCH LAUNCH INTENT ---
-  function launchApp(appId) {
-    var a = APPS[appId];
-    if (!a) return;
-    showToast('Opening ' + a.name + '...');
-    if (diagActiveTargetEl) diagActiveTargetEl.textContent = a.name;
-    if (diagLaunchMethodEl) diagLaunchMethodEl.textContent = a.uri.indexOf('://') !== -1 ? 'Deep Link' : 'Intent';
-
-    var link = document.createElement('a');
-    link.href = a.uri;
-    link.rel = 'noreferrer';
-    link.style.position = 'fixed';
-    link.style.top = '-9999px';
-    link.style.left = '-9999px';
-    document.body.appendChild(link);
-
+  // 2. OPEN-METEO WEATHER (Cached with offline fallback)
+  function fetchWeather() {
     try {
-      link.click();
-    } catch(err) {
-      console.warn('Launch error:', err);
-    }
-    setTimeout(function() {
-      if (link.parentNode) link.parentNode.removeChild(link);
-    }, 400);
+      // Default to Kolkata / Indian coordinates, fallback to 28°C
+      fetch('https://api.open-meteo.com/v1/forecast?latitude=22.57&longitude=88.36&current_weather=true')
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data && data.current_weather) {
+            var temp = Math.round(data.current_weather.temperature);
+            var tempEl = document.getElementById('weather-temp');
+            if (tempEl) tempEl.textContent = temp + '°C';
+          }
+        })
+        .catch(function() {
+          // Silent fallback preserves UI
+        });
+    } catch(e) {}
   }
+  fetchWeather();
+  setInterval(fetchWeather, 30 * 60 * 1000); // every 30 mins
 
-  // --- RENDER MOOD DECK ---
-  function renderMoodDeck() {
-    moodDeckStageEl.innerHTML = '';
-    for (var i = 0; i < 3; i++) {
-      var mIndex = (currentMoodIndex + i) % MOODS.length;
-      var mood = MOODS[mIndex];
+  // 3. BOOTSTRAP SUBSYSTEMS
+  window.MOOD_CONTROLLER.init();
+  window.CAROUSEL_CONTROLLER.init();
+  window.INPUT_CONTROLLER.init();
 
-      var card = document.createElement('button');
-      card.type = 'button';
-      card.className = 'nav-item mood-card pos-' + i;
-      card.id = 'mood-card-active';
-      card.style.setProperty('--mood-glow', mood.color);
-      card.style.background = mood.bgGrad;
-
-      var overlay = document.createElement('div');
-      overlay.className = 'mood-card-overlay';
-
-      var content = document.createElement('div');
-      content.className = 'mood-card-content';
-
-      // Top bar
-      var topBar = document.createElement('div');
-      topBar.className = 'mood-card-top';
-      var badge = document.createElement('span');
-      badge.className = 'mood-badge';
-      badge.textContent = mood.badge;
-      badge.style.borderColor = mood.color;
-      badge.style.color = mood.color;
-      topBar.appendChild(badge);
-
-      // Fanned posters
-      var fan = document.createElement('div');
-      fan.className = 'mood-fanned-posters';
-      for (var p = 0; p < 3; p++) {
-        var img = document.createElement('img');
-        img.className = 'fan-poster p' + (p + 1);
-        img.src = mood.posters[p];
-        img.alt = '';
-        fan.appendChild(img);
-      }
-
-      // Bottom info
-      var bottomInfo = document.createElement('div');
-      var title = document.createElement('div');
-      title.className = 'mood-title';
-      title.textContent = mood.name;
-      var count = document.createElement('div');
-      count.className = 'mood-count';
-      count.textContent = mood.count;
-      bottomInfo.appendChild(title);
-      bottomInfo.appendChild(count);
-
-      content.appendChild(topBar);
-      content.appendChild(fan);
-      content.appendChild(bottomInfo);
-
-      card.appendChild(overlay);
-      card.appendChild(content);
-
-      if (i === 0) {
-        card.onclick = function(e) {
-          e.preventDefault();
-          spinMoodReel();
-        };
-      }
-
-      moodDeckStageEl.appendChild(card);
-    }
-  }
-
-  // --- RENDER CAROUSEL POSTERS ---
-  function renderCarousel() {
-    carouselTrackEl.innerHTML = '';
-    CAROUSEL_ITEMS.forEach(function(item, idx) {
-      var card = document.createElement('button');
-      card.type = 'button';
-      card.className = 'nav-item poster-card';
-      card.id = 'carousel-card-' + idx;
-      card.setAttribute('data-app', item.app);
-
-      var img = document.createElement('img');
-      img.src = item.img;
-      img.alt = item.title;
-
-      var grad = document.createElement('div');
-      grad.className = 'poster-gradient';
-
-      var info = document.createElement('div');
-      info.className = 'poster-info';
-
-      var pill = document.createElement('span');
-      pill.className = 'poster-app-pill';
-      var appObj = APPS[item.app];
-      pill.textContent = appObj ? appObj.name : item.app;
-
-      var title = document.createElement('div');
-      title.className = 'poster-title';
-      title.textContent = item.title;
-
-      var meta = document.createElement('div');
-      meta.className = 'poster-meta';
-      meta.textContent = item.genre + ' · ' + item.year;
-
-      info.appendChild(pill);
-      info.appendChild(title);
-      info.appendChild(meta);
-
-      card.appendChild(img);
-      card.appendChild(grad);
-      card.appendChild(info);
-
-      card.onclick = function(e) {
-        e.preventDefault();
-        launchApp(item.app);
-      };
-
-      carouselTrackEl.appendChild(card);
-    });
-  }
-
-  // --- REEL SHUFFLE & SPINNING ---
-  function spinMoodReel() {
-    if (currentSpinning) return;
-    currentSpinning = true;
-
-    var mood = MOODS[currentMoodIndex];
-    var titles = mood.titles;
-    var pickedIndex = Math.floor(Math.random() * titles.length);
-    currentPickedTitle = titles[pickedIndex];
-
-    var statusEl = document.getElementById('shuffle-status-text');
-    var barWrap = document.getElementById('countdown-bar-wrap');
-    var progressEl = document.getElementById('countdown-progress');
-    if (barWrap) barWrap.style.display = 'none';
-
-    statusEl.textContent = 'Spinning reel...';
-
-    // Populate reel strip with duplicate images for fast rolling
-    shuffleStripEl.innerHTML = '';
-    var reelImages = [];
-    for (var r = 0; r < 8; r++) {
-      titles.forEach(function(t) { reelImages.push(t.poster); });
-    }
-    reelImages.push(currentPickedTitle.poster);
-
-    reelImages.forEach(function(src) {
-      var img = document.createElement('img');
-      img.className = 'reel-poster-item';
-      img.src = src;
-      shuffleStripEl.appendChild(img);
-    });
-
-    var totalHeight = (reelImages.length - 1) * 205;
-    shuffleStripEl.style.transition = 'transform 1.8s cubic-bezier(0.1, 0.9, 0.2, 1)';
-    shuffleStripEl.style.transform = 'translateY(-' + totalHeight + 'px)';
-
-    setTimeout(function() {
-      currentSpinning = false;
-      displayPickedTitle(currentPickedTitle);
-    }, 1850);
-  }
-
-  function displayPickedTitle(item) {
-    document.getElementById('shuffle-title').textContent = item.title;
-    document.getElementById('shuffle-app-badge').textContent = APPS[item.app] ? APPS[item.app].name : item.app;
-    document.getElementById('shuffle-genre').textContent = item.genre;
-    document.getElementById('shuffle-rating').textContent = item.rating;
-    document.getElementById('shuffle-overview').textContent = item.overview;
-    document.getElementById('shuffle-status-text').textContent = 'Picked Title Ready';
-
-    var btnPlay = document.getElementById('btn-shuffle-play');
-    btnPlay.onclick = function(e) {
+  // Wire App Dock Click Handlers
+  var dockTiles = document.querySelectorAll('.dock-logo-tile');
+  dockTiles.forEach(function(tile, idx) {
+    var appKey = tile.getAttribute('data-app');
+    tile.addEventListener('click', function(e) {
       e.preventDefault();
-      launchApp(item.app);
-    };
-
-    var barWrap = document.getElementById('countdown-bar-wrap');
-    var progressEl = document.getElementById('countdown-progress');
-    if (barWrap && progressEl) {
-      barWrap.style.display = 'block';
-      progressEl.style.width = '100%';
-      clearTimeout(countdownTimer);
-      // Auto countdown 4s to launch
-      setTimeout(function() {
-        progressEl.style.width = '0%';
-      }, 50);
-      countdownTimer = setTimeout(function() {
-        barWrap.style.display = 'none';
-        launchApp(item.app);
-      }, 4000);
-    }
-  }
-
-  // --- DOCK INTERACTIONS ---
-  var dockTiles = document.querySelectorAll('.app-tile');
-  dockTiles.forEach(function(tile) {
-    var appId = tile.getAttribute('data-app');
-    var appData = APPS[appId];
-
-    tile.onclick = function(e) {
-      e.preventDefault();
-      launchApp(appId);
-    };
-
-    tile.addEventListener('focus', function() {
-      if (appData) {
-        dockTaglineEl.textContent = appData.tagline;
-        dockAppSubEl.textContent = appData.name + ' · ' + appData.sub;
-        ambientGlowEl.style.backgroundColor = appData.color;
-        ambientGlowEl.style.opacity = '0.35';
-        if (diagActiveTargetEl) diagActiveTargetEl.textContent = appData.name;
-        if (diagLaunchMethodEl) diagLaunchMethodEl.textContent = appData.uri.indexOf('://') !== -1 ? 'Deep Link' : 'Intent';
+      window.APP_LAUNCHER.launch(appKey);
+    });
+    tile.addEventListener('mouseenter', function() {
+      if (window.INPUT_CONTROLLER.isPointerActive()) {
+        window.FOCUS_MANAGER.focusDock(idx);
       }
     });
   });
 
-  // --- SPATIAL 2D REMOTE NAVIGATION ---
-  function navigateSpatial(direction) {
-    var current = document.activeElement;
-    var candidates = Array.prototype.slice.call(document.querySelectorAll('.nav-item'));
-    if (!current || candidates.indexOf(current) === -1) {
-      var first = document.getElementById('app-jiotv');
-      if (first) first.focus();
-      return;
-    }
-
-    var curRect = current.getBoundingClientRect();
-    var cx = curRect.left + curRect.width / 2;
-    var cy = curRect.top + curRect.height / 2;
-
-    var bestEl = null;
-    var bestDistance = Infinity;
-
-    for (var i = 0; i < candidates.length; i++) {
-      var el = candidates[i];
-      if (el === current || el.disabled) continue;
-
-      var r = el.getBoundingClientRect();
-      if (r.width === 0 || r.height === 0) continue;
-
-      var ecx = r.left + r.width / 2;
-      var ecy = r.top + r.height / 2;
-      var dx = ecx - cx;
-      var dy = ecy - cy;
-
-      var isValid = false;
-      if (direction === 'right' && dx > 8) isValid = true;
-      else if (direction === 'left' && dx < -8) isValid = true;
-      else if (direction === 'down' && dy > 8) isValid = true;
-      else if (direction === 'up' && dy < -8) isValid = true;
-
-      if (isValid) {
-        var dist;
-        if (direction === 'left' || direction === 'right') {
-          dist = Math.abs(dx) + Math.abs(dy) * 2.8;
-        } else {
-          dist = Math.abs(dy) + Math.abs(dx) * 2.2;
-        }
-        if (dist < bestDistance) {
-          bestDistance = dist;
-          bestEl = el;
-        }
+  // Wire Favourites Cards Click Handlers
+  var favCards = document.querySelectorAll('.fav-char-card');
+  favCards.forEach(function(card, idx) {
+    card.addEventListener('click', function(e) {
+      e.preventDefault();
+      var fav = window.MEDIA_DATA.FAVOURITES[idx];
+      if (fav) {
+        window.APP_LAUNCHER.launch(fav.app, fav.title);
       }
-    }
+    });
+    card.addEventListener('mouseenter', function() {
+      if (window.INPUT_CONTROLLER.isPointerActive()) {
+        window.FOCUS_MANAGER.focusFavourites(idx);
+      }
+    });
+  });
 
-    if (bestEl) {
-      bestEl.focus();
-      bestEl.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
-    }
+  // Wire Top Bar Button Clicks
+  var btnSearch = document.getElementById('btn-top-search');
+  var btnSettings = document.getElementById('btn-top-settings');
+  if (btnSearch) {
+    btnSearch.onclick = function() {
+      window.APP_LAUNCHER.showToast('Search active — speak or type');
+    };
   }
-
-  // --- HARDWARE DPAD KEY LISTENER ---
-  window.addEventListener('keydown', function(e) {
-    var key = e.key || '';
-    var code = e.keyCode || e.which || 0;
-
-    if (diagLastKeyEl) {
-      diagLastKeyEl.textContent = (key || 'Key') + ' [' + code + ']';
-    }
-
-    // Cancel countdown on any movement
-    if (countdownTimer) {
-      clearTimeout(countdownTimer);
-      var barWrap = document.getElementById('countdown-bar-wrap');
-      if (barWrap) barWrap.style.display = 'none';
-    }
-
-    // Up: ArrowUp, KeyUp, keyCode 38, Android DPAD_UP 19
-    if (key === 'ArrowUp' || key === 'Up' || code === 38 || code === 19) {
-      e.preventDefault();
-      e.stopPropagation();
-      navigateSpatial('up');
-    }
-    // Down: ArrowDown, KeyDown, keyCode 40, Android DPAD_DOWN 20
-    else if (key === 'ArrowDown' || key === 'Down' || code === 40 || code === 20) {
-      e.preventDefault();
-      e.stopPropagation();
-      navigateSpatial('down');
-    }
-    // Left: ArrowLeft, KeyLeft, keyCode 37, Android DPAD_LEFT 21
-    else if (key === 'ArrowLeft' || key === 'Left' || code === 37 || code === 21) {
-      e.preventDefault();
-      e.stopPropagation();
-      navigateSpatial('left');
-    }
-    // Right: ArrowRight, KeyRight, keyCode 39, Android DPAD_RIGHT 22
-    else if (key === 'ArrowRight' || key === 'Right' || code === 39 || code === 22) {
-      e.preventDefault();
-      e.stopPropagation();
-      navigateSpatial('right');
-    }
-    // OK / Enter: keyCode 13, 23 (DPAD_CENTER), 66
-    else if (key === 'Enter' || key === 'Select' || key === 'OK' || code === 13 || code === 23 || code === 66) {
-      e.preventDefault();
-      e.stopPropagation();
-      if (e.repeat) return;
-      var cur = document.activeElement;
-      if (cur && cur.classList && cur.classList.contains('nav-item')) {
-        cur.click();
-      }
-    }
-    // Back: keyCode 8, 27, 4 (Android Back), 461, 10009
-    else if (key === 'Backspace' || key === 'Escape' || key === 'GoBack' || code === 8 || code === 27 || code === 4 || code === 461 || code === 10009) {
-      var active = document.activeElement;
-      var firstDock = document.getElementById('app-jiotv');
-      // If we are down in cards or carousel, return to first dock item
-      if (active && active !== firstDock && active.id !== 'app-hotstar' && active.id !== 'app-youtube' && active.id !== 'app-prime') {
-        e.preventDefault();
-        e.stopPropagation();
-        if (firstDock) {
-          firstDock.focus();
-          firstDock.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-        }
-      }
-    }
-  }, true);
-
-  // --- INITIALIZE UI ---
-  renderMoodDeck();
-  renderCarousel();
-
-  // Apply hover-focus bridge for pointer navigation
-  applyHoverFocusBridge();
-
-  // Re-apply bridge after dynamic renders (mood deck re-renders)
-  var origRenderMoodDeck = renderMoodDeck;
-  renderMoodDeck = function() {
-    origRenderMoodDeck();
-    applyHoverFocusBridge();
-  };
-
-  // Button spin wire
-  var btnSpin = document.getElementById('btn-shuffle-spin');
-  if (btnSpin) {
-    btnSpin.onclick = function(e) {
-      e.preventDefault();
-      spinMoodReel();
+  if (btnSettings) {
+    btnSettings.onclick = function() {
+      window.DIAGNOSTICS.toggle();
     };
   }
 
   // Initial focus on JioTV+
   setTimeout(function() {
-    var jioTile = document.getElementById('app-jiotv');
-    if (jioTile) {
-      jioTile.focus();
-    }
+    window.FOCUS_MANAGER.focusDock(0);
   }, 100);
 
 })();

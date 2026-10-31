@@ -1,0 +1,837 @@
+/* ============================================================
+   Jio STB Custom UI — Core TV Shell & Cinematic Styling
+   Target: Jio JMSD200Av2 Set-Top Box · JioOS 25.1.9 · JioSphere
+   Resolution: 1920x1080 Fixed TV Viewport
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&display=swap');
+
+:root {
+  color-scheme: dark;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --bg-deep: #060911;
+  --text-main: #f5f8ff;
+  --text-sub: #94a5c4;
+  --text-muted: #5e7090;
+  --accent-gold: #ffcb05;
+  --card-radius: 20px;
+  --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ABSOLUTE FIX: Prevent any document-level scrolling */
+html, body {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden !important;
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  background-color: var(--bg-deep);
+  color: var(--text-main);
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: none !important;
+  font-size: 16px;
+}
+
+/* Background Atmosphere Layers */
+.background-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.wallpaper-layer {
+  position: absolute;
+  top: -4%; left: -4%; width: 108%; height: 108%;
+  background-image: url('../assets/wallpapers/wallpaper.jpg');
+  background-size: cover;
+  background-position: center 25%;
+  transition: opacity 0.8s ease, filter 0.8s ease;
+  filter: brightness(0.38) saturate(1.2);
+}
+
+.scene-backdrop-layer {
+  position: absolute;
+  top: -4%; left: -4%; width: 108%; height: 108%;
+  background-size: cover;
+  background-position: center 30%;
+  opacity: 0;
+  transition: opacity 0.55s ease, background-image 0.55s ease;
+  filter: brightness(0.28) saturate(1.3);
+}
+
+.wallpaper-vignette {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 50% 40%, transparent 35%, rgba(6, 9, 17, 0.88) 85%, #060911 100%),
+    linear-gradient(to bottom, rgba(6,9,17,0.3) 0%, transparent 25%, rgba(6,9,17,0.7) 65%, #060911 100%);
+}
+
+.ambient-glow-layer {
+  position: absolute;
+  width: 960px;
+  height: 520px;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  filter: blur(140px);
+  opacity: 0.25;
+  transition: background-color 0.42s ease, opacity 0.3s ease;
+}
+
+/* The Animated TV Stage Frame */
+.tv-stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+  padding: 36px 64px 60px;
+  transition: transform 380ms var(--ease-cinematic);
+  will-change: transform;
+}
+
+/* Nav Item Base & TV Hit Pad */
+.nav-item {
+  outline: none !important;
+  user-select: none;
+  cursor: none !important;
+  position: relative;
+  border: 1px solid transparent;
+}
+.nav-item::before {
+  content: '';
+  position: absolute;
+  top: -12px; bottom: -12px; left: -12px; right: -12px;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+/* 1. TOP HEADER */
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 64px;
+  margin-bottom: 24px;
+}
+.header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+}
+.clock-text {
+  font-family: 'Outfit', sans-serif;
+  font-size: 52px;
+  font-weight: 200;
+  letter-spacing: -1px;
+  color: #fff;
+  text-shadow: 0 2px 14px rgba(0,0,0,0.8);
+}
+.weather-block {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-sub);
+  font-size: 20px;
+  font-weight: 300;
+}
+.weather-icon-svg {
+  width: 26px;
+  height: 26px;
+  fill: currentColor;
+}
+.stb-badge {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #a8bce0;
+  letter-spacing: 0.5px;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.header-icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-sub);
+  transition: all 0.22s ease;
+}
+.header-icon-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+.header-icon-btn:focus, .header-icon-btn.focused {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  transform: scale(1.18);
+  box-shadow: 0 0 0 3px var(--accent-gold), 0 0 20px rgba(255, 203, 5, 0.45) !important;
+}
+
+/* 2. MAIN APP DOCK (8 FLOATING APPS) */
+.dock-section {
+  margin: 30px 0 55px;
+}
+.dock-context-bar {
+  height: 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+  padding-left: 8px;
+}
+.dock-tagline {
+  font-size: 26px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: -0.3px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.9);
+  transition: opacity 0.22s ease;
+}
+.dock-app-sub {
+  font-size: 13px;
+  color: var(--text-sub);
+  margin-top: 4px;
+}
+.dock-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 22px;
+  padding: 10px 4px;
+}
+.dock-logo-tile {
+  background: rgba(22, 33, 54, 0.45);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--card-radius);
+  aspect-ratio: 16 / 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 10px;
+  transition: transform 0.24s var(--ease-cinematic), background 0.24s ease, border-color 0.24s ease, box-shadow 0.24s ease;
+}
+.dock-logo-wrap {
+  width: 100%;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.24s ease;
+}
+.dock-logo-img {
+  max-width: 85%;
+  max-height: 42px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
+}
+.dock-logo-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #ffffff;
+  margin-top: 8px;
+  opacity: 0.75;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.dock-logo-tile:focus, .dock-logo-tile.focused {
+  background: rgba(35, 54, 88, 0.85);
+  transform: scale(1.16) translateY(-6px);
+  border-color: rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 35px var(--accent-gold) !important;
+  z-index: 20;
+}
+.dock-logo-tile:focus .dock-logo-label, .dock-logo-tile.focused .dock-logo-label {
+  opacity: 1;
+  transform: translateY(-2px);
+}
+
+/* SECTION TITLES */
+.section-headline-bar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  padding-left: 6px;
+}
+.section-main-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.4px;
+}
+.section-sub-title {
+  font-size: 14px;
+  color: var(--text-sub);
+  margin-left: 14px;
+}
+.section-hint-pills {
+  font-size: 13px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.key-pill {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffcb05;
+}
+
+/* 3. MY FAVOURITES CHARACTER LINEUP */
+.favourites-section {
+  margin: 60px 0 70px;
+}
+.fav-meta-bar {
+  margin-bottom: 18px;
+  padding-left: 6px;
+  height: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.fav-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.fav-active-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.4px;
+}
+.fav-app-badge {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid #ffcb05;
+  color: #ffcb05;
+  background: rgba(255, 255, 255, 0.08);
+}
+.fav-quote-text {
+  font-size: 14px;
+  color: var(--text-sub);
+  margin-top: 4px;
+  font-style: italic;
+}
+.fav-lineup-stage {
+  position: relative;
+  height: 380px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 20px;
+  padding-bottom: 10px;
+}
+.fav-char-card {
+  position: relative;
+  width: 220px;
+  height: 340px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(14, 22, 36, 0.4);
+  transition: transform 0.28s var(--ease-cinematic), filter 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+  filter: grayscale(100%) brightness(0.65);
+}
+.fav-char-card.row-back {
+  height: 310px;
+  z-index: 5;
+  opacity: 0.85;
+}
+.fav-char-card.row-front {
+  height: 340px;
+  z-index: 10;
+}
+.fav-char-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  transition: transform 0.3s ease;
+}
+.fav-bottom-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, #060911 0%, transparent 40%);
+}
+.fav-char-name-label {
+  position: absolute;
+  bottom: 12px;
+  left: 0; right: 0;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+  opacity: 0.8;
+}
+.fav-char-card:focus, .fav-char-card.focused {
+  filter: grayscale(0%) brightness(1.08) !important;
+  transform: scale(1.12) translateY(-14px) !important;
+  border-color: rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 35px var(--accent-gold) !important;
+  z-index: 25 !important;
+}
+
+/* 4. MOOD CARD DECK ("Don't have time to browse?") */
+.mood-section {
+  margin: 60px 0 70px;
+}
+.mood-deck-stage {
+  position: relative;
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mood-glow-ellipse {
+  position: absolute;
+  width: 680px;
+  height: 320px;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.28;
+  pointer-events: none;
+  transition: background-color 0.4s ease, opacity 0.4s ease;
+}
+.mood-peek-card {
+  position: absolute;
+  width: 200px;
+  height: 268px;
+  border-radius: 18px;
+  border: 1.2px solid rgba(255, 255, 255, 0.12);
+  transition: all 0.35s var(--ease-cinematic);
+}
+.mood-peek-card.peek-2 {
+  transform: translate(32px, 16px) rotate(14deg) scale(0.90);
+  opacity: 0.55;
+  z-index: 2;
+}
+.mood-peek-card.peek-1 {
+  transform: translate(-14px, 8px) rotate(-5deg) scale(0.95);
+  opacity: 0.78;
+  z-index: 3;
+}
+.mood-card-front {
+  position: relative;
+  width: 200px;
+  height: 268px;
+  border-radius: 18px;
+  border: 1.2px solid rgba(255, 255, 255, 0.25);
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+  z-index: 5;
+  transition: transform 0.24s var(--ease-cinematic), box-shadow 0.24s ease, border-color 0.24s ease;
+}
+.mood-card-front:focus, .mood-card-front.focused {
+  transform: translateY(-8px) scale(1.06) !important;
+  border-color: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 40px var(--mood-color, #ffcb05) !important;
+}
+.mood-fan-container {
+  position: relative;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fan-poster-img {
+  position: absolute;
+  width: 72px;
+  height: 108px;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.8);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  transition: transform 0.28s ease;
+}
+.fan-poster-img.fan-p1 { transform: translateX(-38px) translateY(4px) rotate(-9deg) scale(0.94); z-index: 1; filter: brightness(0.8); }
+.fan-poster-img.fan-p2 { transform: translateX(0px) rotate(0deg) scale(1.05); z-index: 3; }
+.fan-poster-img.fan-p3 { transform: translateX(38px) translateY(4px) rotate(9deg) scale(0.94); z-index: 2; filter: brightness(0.8); }
+
+.mood-card-front:focus .fan-p1, .mood-card-front.focused .fan-p1 { transform: translateX(-48px) translateY(6px) rotate(-12deg) scale(0.98); }
+.mood-card-front:focus .fan-p2, .mood-card-front.focused .fan-p2 { transform: translateX(0px) rotate(0deg) scale(1.12); }
+.mood-card-front:focus .fan-p3, .mood-card-front.focused .fan-p3 { transform: translateX(48px) translateY(6px) rotate(12deg) scale(0.98); }
+
+.mood-card-title {
+  font-size: 19px;
+  font-weight: 600;
+  color: #f4f4f6;
+  letter-spacing: -0.2px;
+}
+.mood-card-count {
+  font-size: 12px;
+  font-weight: 400;
+  margin-top: 2px;
+}
+/* Left Nope & Right Yes Controls */
+.mood-action-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  padding: 8px 16px;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.mood-action-btn:hover, .mood-action-btn:focus {
+  color: #fff;
+  transform: scale(1.1);
+}
+.mood-controls-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  margin-top: 14px;
+}
+
+/* 5. GENUINE SLOT-MACHINE REEL STAGE */
+.shuffle-reel-stage {
+  display: none;
+  position: relative;
+  width: 100%;
+  height: 290px;
+  overflow: hidden;
+  padding: 10px 0;
+}
+.reel-track {
+  position: absolute;
+  top: 15px;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  will-change: transform;
+}
+.reel-card {
+  flex: 0 0 164px;
+  height: 246px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  background: #0d1422;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.7);
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+  filter: brightness(0.65) saturate(0.85);
+  transform: scale(0.92);
+}
+.reel-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.reel-card.winner-settled {
+  transform: scale(1.18) !important;
+  filter: brightness(1.12) saturate(1.15) !important;
+  border-color: #fff !important;
+  z-index: 20;
+}
+
+/* Countdown Panel */
+.shuffle-countdown-panel {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-top: 18px;
+}
+.countdown-title {
+  font-size: 26px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.3px;
+}
+.countdown-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+.countdown-sub {
+  font-size: 15px;
+  color: var(--text-sub);
+  margin-top: 6px;
+}
+.countdown-progress-wrap {
+  width: 320px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+.countdown-progress-bar {
+  width: 100%;
+  height: 100%;
+  background: var(--accent-gold);
+}
+
+/* 6. TRENDING OTT POSTER CAROUSEL */
+.carousel-section {
+  margin: 60px 0 80px;
+}
+.carousel-viewport {
+  position: relative;
+  overflow: visible;
+  padding: 14px 4px;
+}
+.carousel-track {
+  display: flex;
+  gap: 24px;
+  transition: transform 340ms var(--ease-cinematic);
+  will-change: transform;
+}
+.poster-card {
+  flex: 0 0 220px;
+  height: 330px;
+  border-radius: 18px;
+  background: #111a2a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
+  transition: transform 0.26s var(--ease-cinematic), box-shadow 0.26s ease, border-color 0.26s ease;
+}
+.poster-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+.poster-grad-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(6, 9, 17, 0.95) 0%, rgba(6, 9, 17, 0.4) 40%, transparent 70%);
+}
+.poster-meta-block {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.poster-app-badge {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+}
+.poster-title-text {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+.poster-sub-text {
+  font-size: 12px;
+  color: var(--text-sub);
+}
+.poster-card:focus, .poster-card.focused {
+  transform: scale(1.10) translateY(-10px);
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.9), 0 0 35px var(--accent-gold) !important;
+  border-color: rgba(255, 255, 255, 0.85) !important;
+  z-index: 15;
+}
+.poster-card:focus .poster-img, .poster-card.focused .poster-img {
+  transform: scale(1.06);
+}
+
+/* 7. SYSTEM FOOTER STRIP */
+.system-footer {
+  margin-top: 50px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.system-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(14, 23, 38, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 10px 24px;
+  font-size: 13px;
+  color: var(--text-sub);
+}
+.status-pill {
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 12px;
+}
+.pill-green {
+  background: rgba(56, 211, 159, 0.2);
+  border: 1px solid rgba(56, 211, 159, 0.5);
+  color: #38d39f;
+}
+.pill-blue {
+  background: rgba(99, 145, 255, 0.2);
+  border: 1px solid rgba(99, 145, 255, 0.5);
+  color: #6391ff;
+}
+.pill-amber {
+  background: rgba(255, 203, 5, 0.2);
+  border: 1px solid rgba(255, 203, 5, 0.5);
+  color: #ffcb05;
+}
+
+/* TV TOAST */
+.tv-toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: rgba(10, 16, 26, 0.94);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 30px;
+  padding: 12px 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  z-index: 1000;
+  transition: transform 0.3s var(--ease-cinematic), opacity 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+.tv-toast.visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* 8. DEVELOPER DIAGNOSTICS OVERLAY (HIDDEN BY DEFAULT) */
+.diag-overlay {
+  position: fixed;
+  top: 0; right: 0;
+  width: 480px;
+  max-height: 100vh;
+  z-index: 9999;
+  background: rgba(6, 9, 17, 0.95);
+  backdrop-filter: blur(16px);
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom-left-radius: 16px;
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  color: #c8d6e5;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s var(--ease-cinematic), opacity 0.3s ease;
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.diag-overlay.hidden {
+  transform: translateX(500px);
+  opacity: 0;
+  pointer-events: none;
+}
+.diag-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.diag-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+.diag-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  color: #fff;
+  cursor: pointer;
+}
+.diag-mode-row {
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.diag-badge {
+  flex: 1;
+  text-align: center;
+  padding: 8px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.diag-badge.active {
+  border-width: 2px;
+  box-shadow: 0 0 12px rgba(255, 203, 5, 0.4);
+}
+.diag-badge.mode-kbd { color: #38d39f; background: rgba(56, 211, 159, 0.12); }
+.diag-badge.mode-mouse { color: #6391ff; background: rgba(99, 145, 255, 0.12); }
+.diag-log-container {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 380px;
+  padding: 6px 0;
+}
+.diag-log-entry {
+  padding: 3px 16px;
+  line-height: 1.4;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  display: flex;
+  gap: 8px;
+}
+.diag-log-time { color: #5e7090; font-size: 10px; width: 55px; }
+.diag-log-type { font-weight: 700; font-size: 11px; width: 75px; text-transform: uppercase; }
+.diag-log-type.type-key { color: #38d39f; }
+.diag-log-type.type-mouse { color: #6391ff; }
+.diag-log-type.type-launch { color: #ffcb05; }
+.diag-log-detail { color: #c8d6e5; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

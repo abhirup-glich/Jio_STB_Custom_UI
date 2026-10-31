@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 50" width="170" height="50">
+  <text x="85" y="29" text-anchor="middle" font-family="'Outfit', sans-serif" font-size="25" font-weight="800" fill="#ffffff" letter-spacing="-0.5">prime video</text>
+  <path d="M30 35 Q 85 45 140 35 Q 115 43 60 39 Z" fill="#ffffff"/>
+  <polygon points="140,35 134,31 136,38" fill="#ffffff"/>
+</svg>
