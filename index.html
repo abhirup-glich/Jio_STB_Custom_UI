@@ -1,27 +1,1078 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>JioSphere App Launch Test</title>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JioSphere App Launch Tester — JMSD200Av2</title>
 <style>
-:root{color-scheme:dark;font-family:Arial,Helvetica,sans-serif}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#18335a 0%,#0c1423 42%,#080d17 100%);color:#edf2ff;min-height:100vh;padding:4vh 5vw}header{display:flex;justify-content:space-between;align-items:center;gap:20px}h1{font-size:clamp(27px,3.4vw,54px);margin:10px 0}.sub{color:#a8b6d1;font-size:clamp(15px,1.4vw,22px);line-height:1.5}.tag{color:#9fb9ed;font-size:15px;border:1px solid #35445c;border-radius:30px;padding:10px 14px}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-top:40px}.app{border:2px solid #364865;background:#172339;border-radius:20px;min-height:190px;color:#fff;cursor:pointer;text-align:left;padding:26px;transition:transform .15s,background .15s,border .15s;display:flex;flex-direction:column;justify-content:space-between}.app:focus,.app:hover{outline:none;border-color:#f0f5ff;background:#243f68;transform:scale(1.025);box-shadow:0 0 0 4px #729bff44}.symbol{font-size:33px;font-weight:900}.appname{font-size:clamp(18px,2vw,30px);font-weight:700}.appsmall{font-size:14px;color:#adc0df;margin-top:8px}.panel{background:#101c30;border:1px solid #34455f;border-radius:16px;padding:22px;margin-top:32px}.panel h2{margin:0 0 12px;font-size:22px}.instructions{color:#b5c3d9;line-height:1.65;font-size:16px}#status{min-height:46px;background:#23354f;color:#eaf3ff;padding:13px 15px;border-radius:10px;font-size:17px}#log{font-family:monospace;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:150px;overflow-y:auto;color:#b0c1db}.controls{display:flex;flex-wrap:wrap;gap:10px;margin-top:15px}.controls button{background:#273958;border:1px solid #47658d;border-radius:9px;color:#fff;padding:12px 17px;font-size:15px;cursor:pointer}.controls button:focus{outline:3px solid white}.warning{font-size:14px;color:#b2bdd0;margin-top:16px}a{color:#c2dcff}@media(max-width:750px){.grid{grid-template-columns:repeat(2,1fr)}.app{min-height:150px;padding:18px}body{padding:22px}header{display:block}}
-</style></head><body>
-<header><div><div class="tag" style="display:inline-block">JMSD200Av2 · 25.1.9</div><h1>App Launch Test</h1><div class="sub">Test whether JioSphere can open real apps on your set-top box.<br>Use remote arrows to select a tile, then press OK.</div></div><div class="tag">No installation needed</div></header>
-<main><div class="grid">
-<button class="app" data-app="youtube"><span class="symbol" style="color:#ff5555">▶</span><span><span class="appname">YouTube</span><div class="appsmall">Launch Android TV app</div></span></button>
-<button class="app" data-app="prime"><span class="symbol" style="color:#51c6ff">prime</span><span><span class="appname">Prime Video</span><div class="appsmall">Launch Android TV app</div></span></button>
-<button class="app" data-app="hotstar"><span class="symbol" style="color:#87acff">★</span><span><span class="appname">JioHotstar</span><div class="appsmall">Launch Android TV app</div></span></button>
-<button class="app" data-app="jio"><span class="symbol" style="color:#ed526a">Jio</span><span><span class="appname">Live TV+</span><div class="appsmall">JioTV+ package test</div></span></button>
-</div>
-<section class="panel"><h2>Test status</h2><div id="status" role="status">Ready. Select an app above.</div><div class="controls"><button id="https" type="button">Try website link for last app</button><button id="clear" type="button">Clear log</button></div><p class="warning">A button attempts an Android intent URL. The browser cannot reliably confirm if an app opened. If nothing happens or an error appears, return here and test the next tile. The website-link option may open a website instead of the installed app.</p><div id="log" aria-label="Attempt log"></div></section>
-<section class="panel instructions"><h2>How to test</h2>1. Host this HTML as an HTTPS webpage and open it in JioSphere.<br>2. Select YouTube, Prime Video, JioHotstar, then Live TV+ one at a time.<br>3. For each, note whether the native app opens, an error appears, a webpage opens, or nothing happens.<br>4. Press Back or Home to return. This test does not install or modify any apps.</section></main>
+:root {
+  color-scheme: dark;
+  font-family: Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --bg-gradient: radial-gradient(ellipse at 80% 0%, #18335a 0%, #0c1423 42%, #080d17 100%);
+  --panel-bg: #101c30;
+  --card-bg: #172339;
+  --card-border: #364865;
+  --focus-border: #ffcc00;
+  --focus-glow: rgba(255, 204, 0, 0.45);
+  --success-color: #38d39f;
+  --fail-color: #ff5e5e;
+  --warn-color: #ffb703;
+  --text-main: #edf2ff;
+  --text-sub: #a8b6d1;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg-gradient);
+  color: var(--text-main);
+  min-height: 100vh;
+  padding: 3vh 4vw;
+  font-size: 16px;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  border-bottom: 1px solid #23344d;
+  padding-bottom: 20px;
+}
+h1 {
+  font-size: clamp(26px, 3.2vw, 48px);
+  margin: 8px 0;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+.sub {
+  color: var(--text-sub);
+  font-size: clamp(14px, 1.3vw, 19px);
+  line-height: 1.5;
+}
+.badge-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.tag {
+  color: #9fb9ed;
+  font-size: 14px;
+  border: 1px solid #35445c;
+  border-radius: 20px;
+  padding: 6px 14px;
+  background: rgba(23, 35, 57, 0.6);
+  font-weight: 600;
+}
+.tag-success {
+  color: #a3f7bf;
+  border-color: #276749;
+  background: rgba(39, 103, 73, 0.25);
+}
+.tag-warn {
+  color: #ffe066;
+  border-color: #8c6d1f;
+  background: rgba(140, 109, 31, 0.25);
+}
+
+/* Navigable focus styling */
+.nav-item {
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+  user-select: none;
+}
+.nav-item:focus, .nav-item.focused {
+  outline: none !important;
+  border-color: var(--focus-border) !important;
+  background: #25426e !important;
+  transform: scale(1.035);
+  box-shadow: 0 0 0 4px var(--focus-glow), 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+  z-index: 10;
+}
+
+/* Primary Top Grid */
+.section-title {
+  font-size: 20px;
+  margin: 28px 0 14px;
+  color: #c9d7ee;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.grid-primary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+.app-card {
+  border: 2px solid var(--card-border);
+  background: var(--card-bg);
+  border-radius: 18px;
+  min-height: 170px;
+  color: #fff;
+  text-align: left;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+.app-card .symbol {
+  font-size: 32px;
+  font-weight: 900;
+}
+.app-card .appname {
+  font-size: clamp(18px, 1.8vw, 26px);
+  font-weight: 700;
+  display: block;
+}
+.app-card .appsmall {
+  font-size: 13px;
+  color: #adc0df;
+  margin-top: 6px;
+}
+.app-card .status-pill {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.pill-working {
+  background: rgba(56, 211, 159, 0.2);
+  color: #38d39f;
+  border: 1px solid rgba(56, 211, 159, 0.5);
+}
+.pill-testing {
+  background: rgba(255, 183, 3, 0.2);
+  color: #ffb703;
+  border: 1px solid rgba(255, 183, 3, 0.5);
+}
+
+/* Methods Section */
+.methods-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 25px;
+}
+.method-panel {
+  background: var(--panel-bg);
+  border: 1px solid #2e415e;
+  border-radius: 16px;
+  padding: 20px;
+}
+.method-panel h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.method-panel .panel-desc {
+  font-size: 13px;
+  color: #92a4c4;
+  margin: 0 0 16px;
+}
+.methods-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.method-btn {
+  background: #17243b;
+  border: 1px solid #364867;
+  border-radius: 10px;
+  color: #e2edff;
+  padding: 12px 14px;
+  font-size: 14px;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.method-btn .info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.method-btn .m-title {
+  font-weight: bold;
+  font-size: 14px;
+  color: #ffffff;
+}
+.method-btn .m-pkg {
+  font-family: monospace;
+  font-size: 12px;
+  color: #9eb6da;
+}
+.method-btn .m-state {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #25334a;
+  color: #92a4c4;
+  white-space: nowrap;
+}
+.m-state.state-pass { background: #134e30; color: #6ee7b7; border: 1px solid #10b981; }
+.m-state.state-fail { background: #4c1d1d; color: #fca5a5; border: 1px solid #ef4444; }
+.m-state.state-tried { background: #4d3800; color: #fde047; border: 1px solid #eab308; }
+
+/* Debug & Verification Panel */
+.debug-panel {
+  background: #0c1524;
+  border: 1px solid #364c6d;
+  border-radius: 16px;
+  padding: 22px;
+  margin-top: 25px;
+}
+.debug-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 1px solid #23344d;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+}
+.debug-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.debug-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.detail-box {
+  background: #142033;
+  border: 1px solid #283952;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.detail-label {
+  font-size: 12px;
+  color: #8fa5c7;
+  text-transform: uppercase;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+.detail-val {
+  font-size: 14px;
+  font-weight: 600;
+  word-break: break-all;
+  color: #edf5ff;
+}
+.uri-display {
+  background: #090e18;
+  border: 1px solid #26364e;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  color: #7ee787;
+  word-break: break-all;
+  white-space: pre-wrap;
+  margin-bottom: 16px;
+  user-select: all;
+}
+.verdict-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: #152238;
+  border: 1px dashed #3e567a;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+.verdict-prompt {
+  font-size: 14px;
+  font-weight: 600;
+  color: #d8e5ff;
+}
+.btn-verdict {
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: bold;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  color: #fff;
+}
+.btn-pass { background: #166534; border-color: #22c55e; }
+.btn-fail { background: #991b1b; border-color: #ef4444; }
+.btn-partial { background: #854d0e; border-color: #eab308; }
+.btn-neutral { background: #24354f; border-color: #48658f; }
+
+.log-container {
+  background: #080d16;
+  border: 1px solid #1f2c40;
+  border-radius: 10px;
+  padding: 12px;
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #a8bcd9;
+  max-height: 160px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+.warning-callout {
+  background: rgba(255, 183, 3, 0.08);
+  border-left: 4px solid #ffb703;
+  padding: 12px 16px;
+  border-radius: 0 8px 8px 0;
+  font-size: 13px;
+  color: #e2dbbe;
+  margin-top: 18px;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .grid-primary { grid-template-columns: repeat(2, 1fr); }
+  .methods-container { grid-template-columns: 1fr; }
+  header { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="badge-group">
+      <span class="tag">Device: JMSD200Av2</span>
+      <span class="tag">JioOS: 25.1.9</span>
+      <span class="tag tag-success">Zero Modifications (No Root/ADB)</span>
+    </div>
+    <h1>JioSphere App Launch Tester</h1>
+    <div class="sub">
+      Targeted native application intent resolver for Jio Set-Top Box.<br>
+      Use <strong>Remote Arrow Keys</strong> to navigate, <strong>OK / Enter</strong> to test, and <strong>Back</strong> to return to the top grid.
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- Primary 4-tile Quick Access -->
+  <div class="section-title">
+    <span>Primary Applications</span>
+  </div>
+  <div class="grid-primary">
+    <!-- YouTube (Unchanged / Working) -->
+    <button class="nav-item app-card" id="app-youtube" type="button" data-type="primary" data-app="youtube">
+      <span class="status-pill pill-working">Working</span>
+      <span class="symbol" style="color:#ff4444">▶</span>
+      <span>
+        <span class="appname">YouTube</span>
+        <div class="appsmall">Android TV App (Unchanged)</div>
+      </span>
+    </button>
+
+    <!-- JioHotstar (Unchanged / Working) -->
+    <button class="nav-item app-card" id="app-hotstar" type="button" data-type="primary" data-app="hotstar">
+      <span class="status-pill pill-working">Working</span>
+      <span class="symbol" style="color:#5f9eff">★</span>
+      <span>
+        <span class="appname">JioHotstar</span>
+        <div class="appsmall">Android TV App (Unchanged)</div>
+      </span>
+    </button>
+
+    <!-- Prime Video Quick Test -->
+    <button class="nav-item app-card" id="app-prime-quick" type="button" data-type="primary" data-app="prime_best">
+      <span class="status-pill pill-testing">Testing</span>
+      <span class="symbol" style="color:#00a8e1">prime</span>
+      <span>
+        <span class="appname">Prime Video</span>
+        <div class="appsmall">Launches [P1] Leanback Intent</div>
+      </span>
+    </button>
+
+    <!-- Live TV+ / JioTV+ Quick Test -->
+    <button class="nav-item app-card" id="app-jio-quick" type="button" data-type="primary" data-app="jio_best">
+      <span class="status-pill pill-testing">Testing</span>
+      <span class="symbol" style="color:#ff3366">Jio</span>
+      <span>
+        <span class="appname">Live TV+</span>
+        <div class="appsmall">Launches [J1] Leanback Intent</div>
+      </span>
+    </button>
+  </div>
+
+  <!-- Detailed Method Matrices -->
+  <div class="methods-container">
+    <!-- Prime Video Methods Column -->
+    <section class="method-panel" id="panel-prime">
+      <h3>
+        <span>Prime Video Launch Methods</span>
+        <span class="tag tag-warn">11 Methods</span>
+      </h3>
+      <p class="panel-desc">Test different leanback intents, components, custom schemes and package IDs.</p>
+      <div class="methods-grid" id="prime-methods-list">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- Live TV+ / JioTV+ Methods Column -->
+    <section class="method-panel" id="panel-jio">
+      <h3>
+        <span>Live TV+ / JioTV+ Methods</span>
+        <span class="tag tag-warn">17 Methods</span>
+      </h3>
+      <p class="panel-desc">Test JioTV+, STB LiveTV, Leanback launcher actions, and deep links.</p>
+      <div class="methods-grid" id="jio-methods-list">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+  </div>
+
+  <!-- Debugging & Verification Center -->
+  <section class="debug-panel" id="debug-section">
+    <div class="debug-header">
+      <h2>Diagnostics & Debugging Panel</h2>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="nav-item btn-neutral" id="btn-clear-verdicts" type="button">Reset Test Results</button>
+        <button class="nav-item btn-neutral" id="btn-clear-log" type="button">Clear Event Log</button>
+      </div>
+    </div>
+
+    <!-- Live Status Indicators -->
+    <div class="debug-details">
+      <div class="detail-box">
+        <div class="detail-label">Last Method Attempted</div>
+        <div class="detail-val" id="diag-method">None (Ready to test)</div>
+      </div>
+      <div class="detail-box">
+        <div class="detail-label">Target Package</div>
+        <div class="detail-val" id="diag-package">—</div>
+      </div>
+      <div class="detail-box">
+        <div class="detail-label">Dispatch Mechanism</div>
+        <div class="detail-val" id="diag-mechanism">Protected Hidden Link (Prevents Reload)</div>
+      </div>
+      <div class="detail-box">
+        <div class="detail-label">Browser Status</div>
+        <div class="detail-val" id="diag-visibility" style="color:#6ee7b7">Foreground (Active)</div>
+      </div>
+      <div class="detail-box">
+        <div class="detail-label">STB Visual Result</div>
+        <div class="detail-val" id="diag-verdict" style="color:#ffcc00">⚠️ Awaiting Visual Confirmation</div>
+      </div>
+    </div>
+
+    <!-- Active URI Display -->
+    <div class="detail-label">Attempted URI String:</div>
+    <div class="uri-display" id="diag-uri">No intent dispatched yet. Select an application or test button above.</div>
+
+    <!-- TV Visual Confirmation Recorder -->
+    <div class="verdict-bar">
+      <span class="verdict-prompt">What happened on your TV screen?</span>
+      <button class="nav-item btn-verdict btn-pass" id="record-pass" type="button">✅ Native App Opened</button>
+      <button class="nav-item btn-verdict btn-partial" id="record-partial" type="button">⚠️ Webpage / Partial</button>
+      <button class="nav-item btn-verdict btn-fail" id="record-fail" type="button">❌ Nothing / Reload / Error</button>
+    </div>
+
+    <!-- Live Log -->
+    <div class="detail-label">Event Stream & Activity Log:</div>
+    <div class="log-container" id="event-log" role="log" aria-live="polite"></div>
+
+    <div class="warning-callout">
+      <strong>Important Verification Note:</strong> In Android web browsers (including JioSphere), JavaScript cannot definitively know if a native activity opened without direct user observation. A change to "Browser Hidden" indicates the browser lost focus to an app. Use the feedback buttons above to record what actually happens on your screen. Results are saved in local storage.
+    </div>
+  </section>
+</main>
+
 <script>
-(function(){
-var apps={youtube:{name:'YouTube',package:'com.google.android.youtube.tv',host:'www.youtube.com',web:'https://www.youtube.com/'},prime:{name:'Prime Video',package:'com.amazon.amazonvideo.livingroom',host:'www.primevideo.com',web:'https://www.primevideo.com/'},hotstar:{name:'JioHotstar',package:'in.startv.hotstar',host:'www.hotstar.com',web:'https://www.hotstar.com/in'},jio:{name:'Live TV+ / JioTV+',package:'com.jio.media.jiotvplus',host:'www.jio.com',web:'https://www.jio.com/jiohome/services/jiotvplus/'}};
-var last=null,status=document.getElementById('status'),log=document.getElementById('log');
-function record(msg){var t=new Date().toLocaleTimeString();log.textContent='['+t+'] '+msg+'\n'+log.textContent;}
-function launch(id){var a=apps[id];last=id;var url='intent://'+a.host+'/#Intent;scheme=https;package='+a.package+';action=android.intent.action.VIEW;end';status.textContent='Attempting '+a.name+'… If it opens, the test succeeded visually. Otherwise note what happened.';record(a.name+' | Intent attempt | '+a.package);try{window.location.href=url;}catch(e){status.textContent='Browser blocked launch: '+e.message;record('Error: '+e.message);}}
-function website(){if(!last){status.textContent='Select an app first.';return;}var a=apps[last];record(a.name+' | Website fallback | '+a.web);status.textContent='Opening '+a.name+' website (not proof of native app launch).';window.location.href=a.web;}
-var buttons=[].slice.call(document.querySelectorAll('.app'));
-buttons.forEach(function(b,i){b.onclick=function(){launch(b.getAttribute('data-app'));};b.addEventListener('keydown',function(e){var key=e.key||'';var index=i;if(key==='ArrowRight')index=Math.min(buttons.length-1,i+1);else if(key==='ArrowLeft')index=Math.max(0,i-1);else if(key==='ArrowDown')index=Math.min(buttons.length-1,i+2);else if(key==='ArrowUp')index=Math.max(0,i-2);else return;e.preventDefault();buttons[index].focus();});});
-document.getElementById('https').onclick=website;document.getElementById('clear').onclick=function(){log.textContent='';status.textContent='Log cleared.'};
-record('Test page loaded. No changes were made to the STB.');
+(function() {
+  'use strict';
+
+  // --- Working unchanged methods ---
+  var UNCHANGED_APPS = {
+    youtube: {
+      name: 'YouTube',
+      package: 'com.google.android.youtube.tv',
+      uri: 'intent://www.youtube.com/#Intent;scheme=https;package=com.google.android.youtube.tv;action=android.intent.action.VIEW;end',
+      desc: 'Original Android TV Leanback method (Confirmed Working)'
+    },
+    hotstar: {
+      name: 'JioHotstar',
+      package: 'in.startv.hotstar',
+      uri: 'intent://www.hotstar.com/#Intent;scheme=https;package=in.startv.hotstar;action=android.intent.action.VIEW;end',
+      desc: 'Original Android TV Leanback method (Confirmed Working)'
+    }
+  };
+
+  // --- Comprehensive Prime Video Methods ---
+  var PRIME_METHODS = [
+    {
+      id: 'P1',
+      title: 'P1: Leanback Launcher Intent',
+      pkg: 'com.amazon.amazonvideo.livingroom',
+      uri: 'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.amazon.amazonvideo.livingroom;end',
+      type: 'Leanback Action MAIN'
+    },
+    {
+      id: 'P2',
+      title: 'P2: Direct Component (IgnitionActivity)',
+      pkg: 'com.amazon.amazonvideo.livingroom',
+      uri: 'intent:#Intent;component=com.amazon.amazonvideo.livingroom/com.amazon.ignition.IgnitionActivity;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;end',
+      type: 'Explicit Component Leanback'
+    },
+    {
+      id: 'P3',
+      title: 'P3: Standard Launcher Intent',
+      pkg: 'com.amazon.amazonvideo.livingroom',
+      uri: 'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=com.amazon.amazonvideo.livingroom;end',
+      type: 'Standard Launcher Action'
+    },
+    {
+      id: 'P4',
+      title: 'P4: Package Action MAIN (No Category)',
+      pkg: 'com.amazon.amazonvideo.livingroom',
+      uri: 'intent:#Intent;action=android.intent.action.MAIN;package=com.amazon.amazonvideo.livingroom;end',
+      type: 'Implicit Package MAIN'
+    },
+    {
+      id: 'P5',
+      title: 'P5: Custom URI (primevideo://)',
+      pkg: 'com.amazon.amazonvideo.livingroom',
+      uri: 'primevideo://',
+      type: 'Custom Scheme'
+    },
+    {
+      id: 'P6',
+      title: 'P6: Custom URI Intent (primevideo://)',
+      pkg: 'com.amazon.amazonvideo.livingroom',
+      uri: 'intent://#Intent;scheme=primevideo;package=com.amazon.amazonvideo.livingroom;action=android.intent.action.VIEW;end',
+      type: 'Intent with Custom Scheme'
+    },
+    {
+      id: 'P7',
+      title: 'P7: Legacy URI (aiv://)',
+      pkg: 'com.amazon.amazonvideo.livingroom',
+      uri: 'aiv://',
+      type: 'Amazon Instant Video Scheme'
+    },
+    {
+      id: 'P8',
+      title: 'P8: Android App URI Scheme',
+      pkg: 'com.amazon.amazonvideo.livingroom',
+      uri: 'android-app://com.amazon.amazonvideo.livingroom',
+      type: 'Android App URI'
+    },
+    {
+      id: 'P9',
+      title: 'P9: Alt Package (com.amazon.avod.thirdpartyclient)',
+      pkg: 'com.amazon.avod.thirdpartyclient',
+      uri: 'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.amazon.avod.thirdpartyclient;end',
+      type: 'Generic STB/Android TV Client'
+    },
+    {
+      id: 'P10',
+      title: 'P10: Alt Deep Link (app.primevideo.com)',
+      pkg: 'com.amazon.amazonvideo.livingroom',
+      uri: 'intent://app.primevideo.com/#Intent;scheme=https;package=com.amazon.amazonvideo.livingroom;action=android.intent.action.VIEW;end',
+      type: 'HTTPS Deep Link Intent'
+    },
+    {
+      id: 'P11',
+      title: 'P11: Original Method (www.primevideo.com)',
+      pkg: 'com.amazon.amazonvideo.livingroom',
+      uri: 'intent://www.primevideo.com/#Intent;scheme=https;package=com.amazon.amazonvideo.livingroom;action=android.intent.action.VIEW;end',
+      type: 'Original Test Method (Failed with reload)'
+    }
+  ];
+
+  // --- Comprehensive Live TV+ / JioTV+ Methods ---
+  var JIO_METHODS = [
+    {
+      id: 'J1',
+      title: 'J1: JioTV+ Leanback Launcher',
+      pkg: 'com.jio.media.jiotvplus',
+      uri: 'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.jio.media.jiotvplus;end',
+      type: 'JioTV+ Leanback'
+    },
+    {
+      id: 'J2',
+      title: 'J2: JioTV+ Standard Launcher',
+      pkg: 'com.jio.media.jiotvplus',
+      uri: 'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=com.jio.media.jiotvplus;end',
+      type: 'JioTV+ Standard Launcher'
+    },
+    {
+      id: 'J3',
+      title: 'J3: JioTV+ Action MAIN Only',
+      pkg: 'com.jio.media.jiotvplus',
+      uri: 'intent:#Intent;action=android.intent.action.MAIN;package=com.jio.media.jiotvplus;end',
+      type: 'JioTV+ Action MAIN'
+    },
+    {
+      id: 'J4',
+      title: 'J4: STB LiveTV Leanback Launcher',
+      pkg: 'com.jio.media.stb.jiotv',
+      uri: 'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.jio.media.stb.jiotv;end',
+      type: 'STB JioTV Leanback'
+    },
+    {
+      id: 'J5',
+      title: 'J5: STB LiveTV Standard Launcher',
+      pkg: 'com.jio.media.stb.jiotv',
+      uri: 'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=com.jio.media.stb.jiotv;end',
+      type: 'STB JioTV Standard Launcher'
+    },
+    {
+      id: 'J6',
+      title: 'J6: STB LiveTV Action MAIN Only',
+      pkg: 'com.jio.media.stb.jiotv',
+      uri: 'intent:#Intent;action=android.intent.action.MAIN;package=com.jio.media.stb.jiotv;end',
+      type: 'STB JioTV Action MAIN'
+    },
+    {
+      id: 'J7',
+      title: 'J7: JioTV Gen Leanback Launcher',
+      pkg: 'com.jio.media.jiotv',
+      uri: 'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.jio.media.jiotv;end',
+      type: 'JioTV Package Leanback'
+    },
+    {
+      id: 'J8',
+      title: 'J8: JioPlay TV Leanback Launcher',
+      pkg: 'com.jio.jioplay.tv',
+      uri: 'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.jio.jioplay.tv;end',
+      type: 'JioPlay Leanback'
+    },
+    {
+      id: 'J9',
+      title: 'J9: Jio STB OnDemand Leanback',
+      pkg: 'com.jio.media.stb.ondemand',
+      uri: 'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.jio.media.stb.ondemand;end',
+      type: 'Jio STB OnDemand'
+    },
+    {
+      id: 'J10',
+      title: 'J10: Custom Scheme (jiotvplus://)',
+      pkg: 'com.jio.media.jiotvplus',
+      uri: 'jiotvplus://',
+      type: 'Custom Scheme'
+    },
+    {
+      id: 'J11',
+      title: 'J11: Custom Scheme (jiotv://)',
+      pkg: 'com.jio.media.stb.jiotv',
+      uri: 'jiotv://',
+      type: 'Custom Scheme'
+    },
+    {
+      id: 'J12',
+      title: 'J12: Custom Scheme (jioplay://)',
+      pkg: 'com.jio.jioplay.tv',
+      uri: 'jioplay://',
+      type: 'Custom Scheme'
+    },
+    {
+      id: 'J13',
+      title: 'J13: Intent Scheme (jiotvplus)',
+      pkg: 'com.jio.media.jiotvplus',
+      uri: 'intent://#Intent;scheme=jiotvplus;package=com.jio.media.jiotvplus;action=android.intent.action.VIEW;end',
+      type: 'Intent with Custom Scheme'
+    },
+    {
+      id: 'J14',
+      title: 'J14: Intent Scheme (jiotv)',
+      pkg: 'com.jio.media.stb.jiotv',
+      uri: 'intent://#Intent;scheme=jiotv;package=com.jio.media.stb.jiotv;action=android.intent.action.VIEW;end',
+      type: 'Intent with Custom Scheme'
+    },
+    {
+      id: 'J15',
+      title: 'J15: Android App URI (jiotvplus)',
+      pkg: 'com.jio.media.jiotvplus',
+      uri: 'android-app://com.jio.media.jiotvplus',
+      type: 'Android App URI'
+    },
+    {
+      id: 'J16',
+      title: 'J16: Android App URI (stb.jiotv)',
+      pkg: 'com.jio.media.stb.jiotv',
+      uri: 'android-app://com.jio.media.stb.jiotv',
+      type: 'Android App URI'
+    },
+    {
+      id: 'J17',
+      title: 'J17: Original Method (www.jio.com)',
+      pkg: 'com.jio.media.jiotvplus',
+      uri: 'intent://www.jio.com/#Intent;scheme=https;package=com.jio.media.jiotvplus;action=android.intent.action.VIEW;end',
+      type: 'Original Test Method (Failed with reload)'
+    }
+  ];
+
+  // State
+  var currentAttempt = null;
+  var verdicts = {};
+  try {
+    var stored = localStorage.getItem('jio_stb_verdicts');
+    if (stored) verdicts = JSON.parse(stored);
+  } catch(e) {}
+
+  // Elements
+  var primeListEl = document.getElementById('prime-methods-list');
+  var jioListEl = document.getElementById('jio-methods-list');
+  var diagMethodEl = document.getElementById('diag-method');
+  var diagPackageEl = document.getElementById('diag-package');
+  var diagUriEl = document.getElementById('diag-uri');
+  var diagVerdictEl = document.getElementById('diag-verdict');
+  var diagVisibilityEl = document.getElementById('diag-visibility');
+  var logEl = document.getElementById('event-log');
+
+  function recordLog(msg, type) {
+    var t = new Date().toLocaleTimeString();
+    var prefix = '[INFO]';
+    if (type === 'warn') prefix = '[WARN]';
+    if (type === 'error') prefix = '[ERROR]';
+    if (type === 'success') prefix = '[SUCCESS]';
+    var entry = '[' + t + '] ' + prefix + ' ' + msg;
+    logEl.textContent = entry + '\n' + logEl.textContent;
+  }
+
+  function saveVerdicts() {
+    try {
+      localStorage.setItem('jio_stb_verdicts', JSON.stringify(verdicts));
+    } catch(e) {}
+  }
+
+  function updateMethodButtonState(btn, state) {
+    var badge = btn.querySelector('.m-state');
+    if (!badge) return;
+    badge.className = 'm-state';
+    if (state === 'pass') {
+      badge.classList.add('state-pass');
+      badge.textContent = 'PASS';
+    } else if (state === 'fail') {
+      badge.classList.add('state-fail');
+      badge.textContent = 'FAIL';
+    } else if (state === 'partial') {
+      badge.classList.add('state-tried');
+      badge.textContent = 'PARTIAL';
+    } else if (state === 'attempted') {
+      badge.classList.add('state-tried');
+      badge.textContent = 'TRIED';
+    } else {
+      badge.textContent = 'UNTESTED';
+    }
+  }
+
+  // Render Method Buttons
+  function renderMethodButton(m, container) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'nav-item method-btn';
+    btn.id = 'btn-method-' + m.id;
+    btn.setAttribute('data-id', m.id);
+
+    var info = document.createElement('div');
+    info.className = 'info';
+
+    var title = document.createElement('div');
+    title.className = 'm-title';
+    title.textContent = m.title;
+
+    var pkg = document.createElement('div');
+    pkg.className = 'm-pkg';
+    pkg.textContent = m.pkg + ' · ' + m.type;
+
+    info.appendChild(title);
+    info.appendChild(pkg);
+
+    var state = document.createElement('div');
+    state.className = 'm-state';
+    state.textContent = verdicts[m.id] ? verdicts[m.id].toUpperCase() : 'UNTESTED';
+
+    btn.appendChild(info);
+    btn.appendChild(state);
+
+    if (verdicts[m.id]) {
+      updateMethodButtonState(btn, verdicts[m.id]);
+    }
+
+    btn.onclick = function(e) {
+      if (e) e.preventDefault();
+      executeTest(m);
+    };
+
+    container.appendChild(btn);
+  }
+
+  PRIME_METHODS.forEach(function(m) { renderMethodButton(m, primeListEl); });
+  JIO_METHODS.forEach(function(m) { renderMethodButton(m, jioListEl); });
+
+  // Safe intent dispatch without forcing document replacement or page reload
+  function dispatchSafeUri(uri) {
+    recordLog('Triggering intent dispatch: ' + uri);
+    var a = document.createElement('a');
+    a.href = uri;
+    a.rel = 'noreferrer';
+    a.style.position = 'fixed';
+    a.style.top = '-9999px';
+    a.style.left = '-9999px';
+    document.body.appendChild(a);
+
+    try {
+      a.click();
+    } catch(err) {
+      recordLog('Direct click exception: ' + err.message, 'error');
+    }
+
+    setTimeout(function() {
+      if (a.parentNode) a.parentNode.removeChild(a);
+    }, 400);
+  }
+
+  // Execute a test
+  function executeTest(info) {
+    currentAttempt = info;
+    diagMethodEl.textContent = info.title || info.name;
+    diagPackageEl.textContent = info.package || info.pkg;
+    diagUriEl.textContent = info.uri;
+    diagVerdictEl.textContent = '⚠️ Dispatched — Please confirm if app opened on TV';
+    diagVerdictEl.style.color = '#ffcc00';
+
+    if (info.id && !verdicts[info.id]) {
+      verdicts[info.id] = 'attempted';
+      var el = document.getElementById('btn-method-' + info.id);
+      if (el) updateMethodButtonState(el, 'attempted');
+      saveVerdicts();
+    }
+
+    recordLog('Testing ' + (info.title || info.name) + ' (' + (info.package || info.pkg) + ')', 'warn');
+    dispatchSafeUri(info.uri);
+  }
+
+  // Wire primary tiles
+  document.getElementById('app-youtube').onclick = function(e) {
+    e.preventDefault();
+    executeTest({
+      id: 'YT',
+      name: UNCHANGED_APPS.youtube.name,
+      package: UNCHANGED_APPS.youtube.package,
+      uri: UNCHANGED_APPS.youtube.uri,
+      title: 'YouTube (Original Working Method)'
+    });
+  };
+
+  document.getElementById('app-hotstar').onclick = function(e) {
+    e.preventDefault();
+    executeTest({
+      id: 'HS',
+      name: UNCHANGED_APPS.hotstar.name,
+      package: UNCHANGED_APPS.hotstar.package,
+      uri: UNCHANGED_APPS.hotstar.uri,
+      title: 'JioHotstar (Original Working Method)'
+    });
+  };
+
+  document.getElementById('app-prime-quick').onclick = function(e) {
+    e.preventDefault();
+    executeTest(PRIME_METHODS[0]); // P1
+  };
+
+  document.getElementById('app-jio-quick').onclick = function(e) {
+    e.preventDefault();
+    executeTest(JIO_METHODS[0]); // J1
+  };
+
+  // Verdict recording buttons
+  function recordUserVerdict(verdictKey, label, color) {
+    if (!currentAttempt) {
+      recordLog('No test selected. Select a method to test first.', 'warn');
+      return;
+    }
+    diagVerdictEl.textContent = label;
+    diagVerdictEl.style.color = color;
+    if (currentAttempt.id) {
+      verdicts[currentAttempt.id] = verdictKey;
+      var el = document.getElementById('btn-method-' + currentAttempt.id);
+      if (el) updateMethodButtonState(el, verdictKey);
+      saveVerdicts();
+    }
+    recordLog('Verdict recorded for ' + (currentAttempt.title || currentAttempt.name) + ': ' + label, 'success');
+  }
+
+  document.getElementById('record-pass').onclick = function(e) {
+    e.preventDefault();
+    recordUserVerdict('pass', '✅ Confirmed Working on STB!', '#38d39f');
+  };
+
+  document.getElementById('record-partial').onclick = function(e) {
+    e.preventDefault();
+    recordUserVerdict('partial', '⚠️ Partial (Opened Webpage/Browser)', '#eab308');
+  };
+
+  document.getElementById('record-fail').onclick = function(e) {
+    e.preventDefault();
+    recordUserVerdict('fail', '❌ Failed (Nothing / Error / Reload)', '#ff5e5e');
+  };
+
+  // Reset & Clear buttons
+  document.getElementById('btn-clear-verdicts').onclick = function(e) {
+    e.preventDefault();
+    verdicts = {};
+    saveVerdicts();
+    var badges = document.querySelectorAll('.m-state');
+    for (var i = 0; i < badges.length; i++) {
+      badges[i].className = 'm-state';
+      badges[i].textContent = 'UNTESTED';
+    }
+    recordLog('All recorded verdicts have been reset.', 'info');
+  };
+
+  document.getElementById('btn-clear-log').onclick = function(e) {
+    e.preventDefault();
+    logEl.textContent = '';
+    recordLog('Event log cleared.', 'info');
+  };
+
+  // Track browser lifecycle & visibility changes
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+      diagVisibilityEl.textContent = 'Background (App Took Focus!)';
+      diagVisibilityEl.style.color = '#38d39f';
+      recordLog('Browser visibility: HIDDEN (Strong signal: external app or OS activity opened)', 'success');
+    } else {
+      diagVisibilityEl.textContent = 'Foreground (Active)';
+      diagVisibilityEl.style.color = '#edf5ff';
+      recordLog('Browser visibility: VISIBLE (Returned to JioSphere)', 'info');
+    }
+  });
+
+  window.addEventListener('blur', function() {
+    recordLog('Window blur event triggered.', 'info');
+  });
+
+  window.addEventListener('focus', function() {
+    recordLog('Window focus restored.', 'info');
+  });
+
+  // --- Full 2D Spatial Remote Navigation ---
+  // Calculates the closest geometric element in direction pressed
+  function navigateDirection(direction) {
+    var current = document.activeElement;
+    var candidates = Array.prototype.slice.call(document.querySelectorAll('.nav-item'));
+    if (!current || candidates.indexOf(current) === -1) {
+      candidates[0].focus();
+      return;
+    }
+
+    var curRect = current.getBoundingClientRect();
+    var cx = curRect.left + curRect.width / 2;
+    var cy = curRect.top + curRect.height / 2;
+
+    var bestEl = null;
+    var bestDistance = Infinity;
+
+    for (var i = 0; i < candidates.length; i++) {
+      var el = candidates[i];
+      if (el === current || el.disabled) continue;
+
+      var r = el.getBoundingClientRect();
+      // Skip offscreen or hidden
+      if (r.width === 0 || r.height === 0) continue;
+
+      var ecx = r.left + r.width / 2;
+      var ecy = r.top + r.height / 2;
+      var dx = ecx - cx;
+      var dy = ecy - cy;
+
+      var isValid = false;
+      if (direction === 'right' && dx > 8) isValid = true;
+      else if (direction === 'left' && dx < -8) isValid = true;
+      else if (direction === 'down' && dy > 8) isValid = true;
+      else if (direction === 'up' && dy < -8) isValid = true;
+
+      if (isValid) {
+        // Bias distance heavily along primary axis to maintain natural grids
+        var dist;
+        if (direction === 'left' || direction === 'right') {
+          dist = Math.abs(dx) + Math.abs(dy) * 2.5;
+        } else {
+          dist = Math.abs(dy) + Math.abs(dx) * 2.0;
+        }
+        if (dist < bestDistance) {
+          bestDistance = dist;
+          bestEl = el;
+        }
+      }
+    }
+
+    if (bestEl) {
+      bestEl.focus();
+      bestEl.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+    }
+  }
+
+  // Key event listener for Remote control
+  window.addEventListener('keydown', function(e) {
+    var key = e.key || '';
+    var code = e.keyCode || e.which || 0;
+
+    // Up: ArrowUp, KeyUp, keyCode 38, Android DPAD_UP 19
+    if (key === 'ArrowUp' || key === 'Up' || code === 38 || code === 19) {
+      e.preventDefault();
+      navigateDirection('up');
+    }
+    // Down: ArrowDown, KeyDown, keyCode 40, Android DPAD_DOWN 20
+    else if (key === 'ArrowDown' || key === 'Down' || code === 40 || code === 20) {
+      e.preventDefault();
+      navigateDirection('down');
+    }
+    // Left: ArrowLeft, KeyLeft, keyCode 37, Android DPAD_LEFT 21
+    else if (key === 'ArrowLeft' || key === 'Left' || code === 37 || code === 21) {
+      e.preventDefault();
+      navigateDirection('left');
+    }
+    // Right: ArrowRight, KeyRight, keyCode 39, Android DPAD_RIGHT 22
+    else if (key === 'ArrowRight' || key === 'Right' || code === 39 || code === 22) {
+      e.preventDefault();
+      navigateDirection('right');
+    }
+    // OK / Enter: Enter, Select, OK, keyCode 13, Android DPAD_CENTER 23, ENTER 66
+    else if (key === 'Enter' || key === 'Select' || key === 'OK' || code === 13 || code === 23 || code === 66) {
+      var cur = document.activeElement;
+      if (cur && cur.classList && cur.classList.contains('nav-item')) {
+        e.preventDefault();
+        cur.click();
+      }
+    }
+    // Back button: Backspace, Escape, GoBack, keyCode 8, 27, 4 (Android Back), 461, 10009
+    else if (key === 'Backspace' || key === 'Escape' || key === 'GoBack' || code === 8 || code === 27 || code === 4 || code === 461 || code === 10009) {
+      var active = document.activeElement;
+      var topItem = document.getElementById('app-youtube');
+      // If we are deep down in the panels, return focus to top item instead of exiting browser
+      if (active && active !== topItem && active.id !== 'app-hotstar' && active.id !== 'app-prime-quick' && active.id !== 'app-jio-quick') {
+        e.preventDefault();
+        topItem.focus();
+        topItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        recordLog('Remote Back pressed: Returned focus to Top Grid.', 'info');
+      }
+    }
+  });
+
+  // Initial focus on YouTube tile
+  setTimeout(function() {
+    var yt = document.getElementById('app-youtube');
+    if (yt) yt.focus();
+    recordLog('JioSphere App Launch Tester ready. Device: JMSD200Av2 (25.1.9).', 'info');
+  }, 100);
+
 })();
-</script></body></html>
+</script>
+</body>
+</html>
