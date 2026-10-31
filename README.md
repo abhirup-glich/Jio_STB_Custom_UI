@@ -1,46 +1,60 @@
 # Jio_STB_Custom_UI
 
-A specialized, lightweight custom application launcher and intent resolver designed specifically for **Jio Set-Top Box (JMSD200Av2)** running **JioOS 25.1.9** via the built-in **JioSphere** browser.
+A cinematic, TV-first custom launcher and content discovery dashboard designed for **Jio Set-Top Box (JMSD200Av2)** running **JioOS 25.1.9** via the built-in **JioSphere** browser.
 
-## Verified Applications Status (100% Working)
-
-All 4 primary applications have been tested and verified on the actual Jio STB hardware with zero page reloads, zero system modifications, and without requiring root or ADB access:
-
-| Application | Target Package | Verified Working Mechanism | Status |
-| :--- | :--- | :--- | :--- |
-| **YouTube** | `com.google.android.youtube.tv` | `intent://www.youtube.com/#Intent;scheme=https;package=com.google.android.youtube.tv;action=android.intent.action.VIEW;end` | ✅ **Working** |
-| **JioHotstar** | `in.startv.hotstar` | `intent://www.hotstar.com/#Intent;scheme=https;package=in.startv.hotstar;action=android.intent.action.VIEW;end` | ✅ **Working** |
-| **Prime Video** | `com.amazon.amazonvideo.livingroom` | `intent://app.primevideo.com/#Intent;scheme=https;package=com.amazon.amazonvideo.livingroom;action=android.intent.action.VIEW;end` (**P10 Alt Deep Link**) | ✅ **Working** |
-| **Live TV+ / JioTV+** | `com.jio.media.jiotvplus` | `jiotvplus://` (**J10 Custom Scheme**) | ✅ **Working** |
+Inspired by the "Your TV, Your Way" design aesthetic: minimal, dark cinematic backdrop, floating dock, mood card decks, and slot-machine style show shuffle.
 
 ---
 
-## Technical Findings on JioOS 25.1.9
+## 8 Apps Floating Dock (No Netflix)
 
-1. **Prime Video Launch Discovery**:
-   - The generic web URL `www.primevideo.com` failed because Android TV builds do not register web intent filters for `www.primevideo.com`.
-   - **Fix**: The deep link host `app.primevideo.com` (`P10`) successfully matches the internal intent filter of `com.amazon.amazonvideo.livingroom` and launches the native Android TV app.
+The main dock contains the exact 8 requested applications with floating logos, custom app glow, and dynamic quotes/taglines:
 
-2. **Live TV+ Launch Discovery**:
-   - Web-based intents targeting `www.jio.com` failed and caused page reload fallbacks.
-   - **Fix**: The custom URI scheme `jiotvplus://` (`J10`) triggers the Android package `com.jio.media.jiotvplus` directly and cleanly switches to live TV without browser reload.
+1. **JioTV+** (`jiotvplus://` native scheme)
+2. **JioHotstar** (`in.startv.hotstar` direct intent)
+3. **YouTube** (`com.google.android.youtube.tv` leanback intent)
+4. **Prime Video** (`app.primevideo.com` P10 deep link intent)
+5. **Hoichoi** (`com.viewlift.hoichoi` Android TV launcher)
+6. **SonyLIV** (`com.sonyliv` Android TV launcher)
+7. **ZEE5** (`com.graymatrix.did` Android TV launcher)
+8. **Lionsgate Play** (`com.lionsgateplay.videoapp` Android TV launcher)
 
----
-
-## Features
-
-- **Primary Dashboard**: 4 high-contrast tiles for instant remote launching.
-- **Anti-Reload Dispatch**: Uses safe, non-destructive anchor triggers to prevent browser page reload/replacement.
-- **Full Jio Remote Navigation**:
-  - Spatial 2D direction engine for D-pad navigation.
-  - Supports Up, Down, Left, Right, OK/Select (`13`/`23`/`66`), and Back (`4`/`8`/`27`/`461`/`10009`).
-  - Pressing **Back** in sub-sections safely returns focus to the primary grid.
-- **Diagnostics & Testing Suite**: Retains the complete matrix of 11 Prime Video methods and 17 Live TV+ methods with local storage verdict tracking for ongoing diagnostics.
-- **100% Client-Side**: No server dependencies, no external libraries, and runs offline or over local networks.
+*(Netflix is strictly omitted throughout the UI and codebase).*
 
 ---
 
-## Usage
+## Key Features
+
+1. **Cinematic Hero Header**:
+   - Real-time digital clock in the Outfit typeface.
+   - Live temperature and weather icon.
+   - System badge (`JMSD200Av2 · JioOS 25.1.9`).
+   - Clean top-right quick controls for Search & Settings.
+
+2. **Floating App Dock**:
+   - Single horizontal row of 8 brand logos with visual weight balancing.
+   - Dynamic tagline and app description updating smoothly as you scroll across apps.
+   - Ambient backlight glow changing to match each app's brand color.
+
+3. **Card Shuffle Shows ("Don't Know What to Watch?")**:
+   - 3D fanned mood deck cards (`Bengali Favourites`, `Trending Now`, `Action Night`, `Live TV & Sports`).
+   - Slot-machine style rolling poster reel with spinning transitions.
+   - Random title recommendation landing screen with genre, rating, synopsis, and instant launch button.
+   - 4-second auto-launch progress bar with cancel/respin controls.
+
+4. **Cinematic Poster Carousel**:
+   - Horizontal poster browsing strip featuring top movies and series across Indian OTT platforms.
+   - Smooth focus zoom, lighting elevation, and direct OTT app deep linking on click.
+
+5. **Jio Remote Spatial Navigation**:
+   - Full 2D geometric navigation with D-pad (`Up`, `Down`, `Left`, `Right`).
+   - `OK / Select` triggers actions without double-tap repeat glitches.
+   - `Back` safely returns focus to the main dock.
+   - Web cursor is suppressed (`cursor: none`) for a pure native TV feel.
+
+---
+
+## How to Run on Jio STB
 1. Host `index.html` via GitHub Pages or local HTTPS server.
-2. Open the URL in the **JioSphere** browser on your Jio STB (JMSD200Av2).
-3. Use the remote control arrow keys to select any app tile and press **OK** to launch.
+2. Open the URL in the **JioSphere** browser on your Jio STB.
+3. Control the entire launcher using only your Jio remote control.
