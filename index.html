@@ -157,13 +157,24 @@ header.hero-header {
   fill: currentColor;
 }
 
-/* Nav Item Base State */
+/* Nav Item Base State & TV Hit Box */
 .nav-item {
   outline: none !important;
   user-select: none;
-  cursor: pointer;
+  cursor: none;
   position: relative;
   border: 1px solid transparent;
+}
+/* Invisible hit area expansion for remote pointer precision */
+.nav-item::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  bottom: -12px;
+  left: -12px;
+  right: -12px;
+  z-index: 1;
+  pointer-events: auto;
 }
 .nav-item:focus, .nav-item.focused {
   outline: none !important;
@@ -683,6 +694,218 @@ header.hero-header {
   font-weight: 700;
 }
 
+/* 6. REMOTE INPUT DIAGNOSTICS OVERLAY */
+.diag-overlay {
+  position: fixed;
+  top: 0; right: 0;
+  width: 480px;
+  max-height: 100vh;
+  z-index: 9999;
+  background: rgba(6, 9, 17, 0.94);
+  backdrop-filter: blur(16px);
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom-left-radius: 16px;
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 12px;
+  color: #c8d6e5;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s var(--ease-cinematic), opacity 0.3s ease;
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.diag-overlay.hidden {
+  transform: translateX(500px);
+  opacity: 0;
+  pointer-events: none;
+}
+.diag-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+.diag-header-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffcb05;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.diag-toggle-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Input mode indicators */
+.diag-mode-row {
+  display: flex;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+.diag-mode-badge {
+  flex: 1;
+  text-align: center;
+  padding: 8px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.diag-mode-badge.mode-keyboard {
+  background: rgba(56, 211, 159, 0.12);
+  border-color: rgba(56, 211, 159, 0.3);
+  color: #38d39f;
+}
+.diag-mode-badge.mode-mouse {
+  background: rgba(99, 145, 255, 0.12);
+  border-color: rgba(99, 145, 255, 0.3);
+  color: #6391ff;
+}
+.diag-mode-badge.mode-active {
+  border-width: 2px;
+}
+.diag-mode-badge.mode-keyboard.mode-active {
+  background: rgba(56, 211, 159, 0.25);
+  border-color: #38d39f;
+  box-shadow: 0 0 12px rgba(56, 211, 159, 0.4);
+}
+.diag-mode-badge.mode-mouse.mode-active {
+  background: rgba(99, 145, 255, 0.25);
+  border-color: #6391ff;
+  box-shadow: 0 0 12px rgba(99, 145, 255, 0.4);
+}
+.diag-mode-count {
+  font-size: 22px;
+  font-weight: 800;
+  display: block;
+  margin-bottom: 2px;
+}
+
+/* Stats row */
+.diag-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+.diag-stat-item {
+  text-align: center;
+}
+.diag-stat-label {
+  font-size: 10px;
+  color: #5e7090;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.diag-stat-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin-top: 2px;
+}
+
+/* Event log */
+.diag-log-container {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 420px;
+  padding: 8px 0;
+}
+.diag-log-entry {
+  padding: 4px 16px;
+  line-height: 1.5;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+.diag-log-entry:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.02);
+}
+.diag-log-time {
+  color: #5e7090;
+  font-size: 10px;
+  flex-shrink: 0;
+  width: 55px;
+}
+.diag-log-type {
+  font-weight: 700;
+  font-size: 11px;
+  flex-shrink: 0;
+  width: 80px;
+  text-transform: uppercase;
+}
+.diag-log-type.type-key { color: #38d39f; }
+.diag-log-type.type-mouse { color: #6391ff; }
+.diag-log-type.type-focus { color: #ffcb05; }
+.diag-log-type.type-click { color: #ff6b6b; }
+.diag-log-detail {
+  color: #c8d6e5;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Focused element display */
+.diag-focus-bar {
+  padding: 8px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.diag-focus-label {
+  color: #5e7090;
+  font-size: 10px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.diag-focus-val {
+  color: #ffcb05;
+  font-weight: 700;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Toggle hint floating pill */
+.diag-toggle-hint {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 10000;
+  background: rgba(255, 203, 5, 0.15);
+  border: 1px solid rgba(255, 203, 5, 0.4);
+  color: #ffcb05;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: Consolas, monospace;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.diag-toggle-hint.hidden { opacity: 0; }
+
 /* Toast Message */
 .tv-toast {
   position: fixed;
@@ -920,8 +1143,8 @@ header.hero-header {
   <footer class="system-overlay">
     <div class="diag-strip">
       <div class="diag-item">
-        <span>Hardware DPAD:</span>
-        <span class="pill-active">Active</span>
+        <span>Hardware Input:</span>
+        <span class="pill-active" id="diag-dpad-status-pill">Active (DPAD)</span>
       </div>
       <div class="diag-item">
         <span>Remote Key:</span>
@@ -940,6 +1163,46 @@ header.hero-header {
 
 </div>
 
+<!-- 6. REMOTE INPUT DIAGNOSTICS OVERLAY -->
+<div class="diag-overlay" id="diag-overlay">
+  <div class="diag-header">
+    <span class="diag-header-title">🔍 Remote Input Diagnostics</span>
+    <button class="diag-toggle-btn" id="diag-close-btn" type="button">Hide [D]</button>
+  </div>
+  <div class="diag-mode-row">
+    <div class="diag-mode-badge mode-keyboard" id="diag-mode-kbd">
+      <span class="diag-mode-count" id="diag-kbd-count">0</span>
+      ⌨ Keyboard Events
+    </div>
+    <div class="diag-mode-badge mode-mouse" id="diag-mode-mouse">
+      <span class="diag-mode-count" id="diag-mouse-count">0</span>
+      🖱 Mouse Events
+    </div>
+  </div>
+  <div class="diag-stats">
+    <div class="diag-stat-item">
+      <div class="diag-stat-label">Input Mode</div>
+      <div class="diag-stat-val" id="diag-input-mode">DETECTING…</div>
+    </div>
+    <div class="diag-stat-item">
+      <div class="diag-stat-label">Arrow Keys?</div>
+      <div class="diag-stat-val" id="diag-arrows-status">Unknown</div>
+    </div>
+    <div class="diag-stat-item">
+      <div class="diag-stat-label">Nav System</div>
+      <div class="diag-stat-val" id="diag-nav-system">DPAD</div>
+    </div>
+  </div>
+  <div class="diag-log-container" id="diag-log-container">
+    <!-- Event entries injected here -->
+  </div>
+  <div class="diag-focus-bar">
+    <span class="diag-focus-label">Focused:</span>
+    <span class="diag-focus-val" id="diag-focus-el">body</span>
+  </div>
+</div>
+<div class="diag-toggle-hint" id="diag-toggle-hint">Press [D] to toggle diagnostics</div>
+
 <!-- TV Toast Notification -->
 <div class="tv-toast" id="tv-toast">
   <svg style="width:20px;height:20px;fill:var(--accent-gold)" viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19"/></svg>
@@ -949,6 +1212,330 @@ header.hero-header {
 <script>
 (function() {
   'use strict';
+
+  // ============================================================
+  // REMOTE INPUT DIAGNOSTICS SYSTEM
+  // Captures ALL input events to determine how JioSphere
+  // delivers remote-control inputs (keyboard vs mouse)
+  // ============================================================
+
+  var DIAG_MAX_ENTRIES = 40;
+  var diagState = {
+    kbdCount: 0,
+    mouseCount: 0,
+    arrowKeysDetected: false,
+    mouseMovementDetected: false,
+    inputMode: 'DETECTING',   // DETECTING, KEYBOARD, MOUSE, HYBRID
+    navSystem: 'DPAD',        // DPAD or POINTER
+    mouseMoveAccum: 0,        // accumulated mouse movement pixels
+    lastMouseMoveTime: 0,
+    visible: true
+  };
+
+  // Diagnostics DOM refs (safe-get)
+  function dEl(id) { return document.getElementById(id); }
+
+  function diagLog(type, detail) {
+    var container = dEl('diag-log-container');
+    if (!container) return;
+
+    var now = new Date();
+    var ts = (now.getHours() < 10 ? '0' : '') + now.getHours() + ':' +
+             (now.getMinutes() < 10 ? '0' : '') + now.getMinutes() + ':' +
+             (now.getSeconds() < 10 ? '0' : '') + now.getSeconds();
+
+    var typeClass = 'type-key';
+    if (type === 'mouse' || type === 'mousemove') typeClass = 'type-mouse';
+    else if (type === 'focus') typeClass = 'type-focus';
+    else if (type === 'click') typeClass = 'type-click';
+
+    var entry = document.createElement('div');
+    entry.className = 'diag-log-entry';
+    entry.innerHTML = '<span class="diag-log-time">' + ts + '</span>' +
+      '<span class="diag-log-type ' + typeClass + '">' + type + '</span>' +
+      '<span class="diag-log-detail">' + detail + '</span>';
+
+    container.insertBefore(entry, container.firstChild);
+
+    // Trim old entries
+    while (container.children.length > DIAG_MAX_ENTRIES) {
+      container.removeChild(container.lastChild);
+    }
+  }
+
+  function updateDiagCounters() {
+    var kbdCountEl = dEl('diag-kbd-count');
+    var mouseCountEl = dEl('diag-mouse-count');
+    var modeEl = dEl('diag-input-mode');
+    var arrowsEl = dEl('diag-arrows-status');
+    var navEl = dEl('diag-nav-system');
+    var kbdBadge = dEl('diag-mode-kbd');
+    var mouseBadge = dEl('diag-mode-mouse');
+    var dpadPill = dEl('diag-dpad-status-pill');
+
+    if (kbdCountEl) kbdCountEl.textContent = diagState.kbdCount;
+    if (mouseCountEl) mouseCountEl.textContent = diagState.mouseCount;
+    if (modeEl) modeEl.textContent = diagState.inputMode;
+    if (arrowsEl) arrowsEl.textContent = diagState.arrowKeysDetected ? '✓ YES' : '✗ No';
+    if (navEl) navEl.textContent = diagState.navSystem;
+
+    if (dpadPill) {
+      if (diagState.inputMode === 'MOUSE') {
+        dpadPill.textContent = 'Pointer Mode';
+        dpadPill.style.color = '#6391ff';
+        dpadPill.style.borderColor = 'rgba(99, 145, 255, 0.5)';
+        dpadPill.style.background = 'rgba(99, 145, 255, 0.2)';
+      } else if (diagState.inputMode === 'HYBRID') {
+        dpadPill.textContent = 'Hybrid (DPAD+PTR)';
+        dpadPill.style.color = '#ffcb05';
+        dpadPill.style.borderColor = 'rgba(255, 203, 5, 0.5)';
+        dpadPill.style.background = 'rgba(255, 203, 5, 0.2)';
+      } else {
+        dpadPill.textContent = 'DPAD Active';
+        dpadPill.style.color = '#38d39f';
+        dpadPill.style.borderColor = 'rgba(56, 211, 159, 0.5)';
+        dpadPill.style.background = 'rgba(56, 211, 159, 0.2)';
+      }
+    }
+
+    // Highlight active mode badge
+    if (kbdBadge) {
+      kbdBadge.classList.toggle('mode-active', diagState.inputMode === 'KEYBOARD' || diagState.inputMode === 'HYBRID');
+    }
+    if (mouseBadge) {
+      mouseBadge.classList.toggle('mode-active', diagState.inputMode === 'MOUSE' || diagState.inputMode === 'HYBRID');
+    }
+  }
+
+  function updateFocusDisplay() {
+    var el = document.activeElement;
+    var focusEl = dEl('diag-focus-el');
+    if (!focusEl) return;
+    var desc = el ? (el.tagName.toLowerCase() +
+      (el.id ? '#' + el.id : '') +
+      (el.className ? '.' + el.className.split(' ')[0] : '')) : 'none';
+    focusEl.textContent = desc;
+  }
+
+  function determineInputMode() {
+    if (diagState.arrowKeysDetected && diagState.mouseMovementDetected) {
+      diagState.inputMode = 'HYBRID';
+      diagState.navSystem = 'DPAD+PTR';
+    } else if (diagState.arrowKeysDetected) {
+      diagState.inputMode = 'KEYBOARD';
+      diagState.navSystem = 'DPAD';
+    } else if (diagState.mouseMovementDetected) {
+      diagState.inputMode = 'MOUSE';
+      diagState.navSystem = 'POINTER';
+    }
+    updateDiagCounters();
+  }
+
+  // --- KEYBOARD EVENT CAPTURE (capture phase) ---
+  function onDiagKeyDown(e) {
+    var key = e.key || '';
+    var code = e.keyCode || e.which || 0;
+
+    diagState.kbdCount++;
+
+    // Check if this is an arrow key
+    if (key === 'ArrowUp' || key === 'ArrowDown' || key === 'ArrowLeft' || key === 'ArrowRight' ||
+        key === 'Up' || key === 'Down' || key === 'Left' || key === 'Right' ||
+        code === 37 || code === 38 || code === 39 || code === 40 ||
+        code === 19 || code === 20 || code === 21 || code === 22) {
+      diagState.arrowKeysDetected = true;
+    }
+
+    var detail = 'key="' + key + '" code=' + code +
+      (e.code ? ' e.code="' + e.code + '"' : '') +
+      (e.repeat ? ' [REPEAT]' : '');
+    diagLog('keydown', detail);
+    determineInputMode();
+  }
+
+  function onDiagKeyUp(e) {
+    var key = e.key || '';
+    var code = e.keyCode || e.which || 0;
+    diagLog('keyup', 'key="' + key + '" code=' + code);
+  }
+
+  // --- MOUSE EVENT CAPTURE ---
+  var mouseThrottleTimer = null;
+  function onDiagMouseMove(e) {
+    diagState.mouseCount++;
+    var now = Date.now();
+
+    // Accumulate movement
+    if (diagState.lastMouseMoveTime > 0) {
+      var dx = Math.abs(e.movementX || 0);
+      var dy = Math.abs(e.movementY || 0);
+      diagState.mouseMoveAccum += dx + dy;
+    }
+    diagState.lastMouseMoveTime = now;
+
+    // If we've seen >30px of accumulated movement, consider mouse active
+    if (diagState.mouseMoveAccum > 30) {
+      diagState.mouseMovementDetected = true;
+      determineInputMode();
+
+      // Activate pointer navigation mode
+      activatePointerNav(e);
+    }
+
+    // Throttled log (every 300ms max)
+    if (!mouseThrottleTimer) {
+      mouseThrottleTimer = setTimeout(function() {
+        mouseThrottleTimer = null;
+        diagLog('mousemove', 'x=' + e.clientX + ' y=' + e.clientY +
+          ' accum=' + Math.round(diagState.mouseMoveAccum) + 'px');
+        updateDiagCounters();
+      }, 300);
+    }
+  }
+
+  function onDiagMouseDown(e) {
+    diagState.mouseCount++;
+    diagLog('mousedown', 'btn=' + e.button + ' x=' + e.clientX + ' y=' + e.clientY +
+      ' target=' + (e.target.tagName + (e.target.id ? '#' + e.target.id : '')));
+    updateDiagCounters();
+  }
+
+  function onDiagMouseUp(e) {
+    diagLog('mouseup', 'btn=' + e.button + ' x=' + e.clientX + ' y=' + e.clientY);
+  }
+
+  function onDiagClick(e) {
+    diagLog('click', 'x=' + e.clientX + ' y=' + e.clientY +
+      ' target=' + (e.target.tagName + (e.target.id ? '#' + e.target.id : '')));
+  }
+
+  // --- FOCUS TRACKING ---
+  function onDiagFocusIn(e) {
+    var el = e.target;
+    var desc = el.tagName.toLowerCase() +
+      (el.id ? '#' + el.id : '') +
+      (el.className ? '.' + el.className.split(' ')[0] : '');
+    diagLog('focus', desc);
+    updateFocusDisplay();
+  }
+
+  // --- POINTER-TO-FOCUS NAVIGATION (for mouse-only mode) ---
+  function activatePointerNav(e) {
+    // If pointer is inside the diagnostics overlay, do not snap focus
+    var overlay = dEl('diag-overlay');
+    if (overlay && overlay.contains(e.target)) return;
+
+    // 1. Direct hit or parent walk
+    var hitEl = document.elementFromPoint(e.clientX, e.clientY);
+    var navItem = null;
+    if (hitEl) {
+      if (hitEl.closest) {
+        navItem = hitEl.closest('.nav-item');
+      } else {
+        var walker = hitEl;
+        while (walker && walker !== document.body) {
+          if (walker.classList && walker.classList.contains('nav-item')) {
+            navItem = walker;
+            break;
+          }
+          walker = walker.parentElement;
+        }
+      }
+    }
+
+    // 2. Proximity snapping: if pointer is slightly off an app tile or poster, snap to nearest within 80px
+    if (!navItem) {
+      var candidates = document.querySelectorAll('.nav-item');
+      var minDist = 80;
+      for (var i = 0; i < candidates.length; i++) {
+        var c = candidates[i];
+        if (c.disabled || c.offsetParent === null) continue;
+        var r = c.getBoundingClientRect();
+        if (r.width === 0 || r.height === 0) continue;
+        var dx = Math.max(r.left - e.clientX, 0, e.clientX - r.right);
+        var dy = Math.max(r.top - e.clientY, 0, e.clientY - r.bottom);
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < minDist) {
+          minDist = dist;
+          navItem = c;
+        }
+      }
+    }
+
+    if (navItem && navItem !== document.activeElement) {
+      navItem.focus({ preventScroll: true });
+    }
+  }
+
+  // --- MOUSEENTER HOVER-FOCUS BRIDGE ---
+  // Applied to all .nav-item elements to enable hover=focus
+  function applyHoverFocusBridge() {
+    var items = document.querySelectorAll('.nav-item');
+    items.forEach(function(item) {
+      if (item._hoverBridgeApplied) return;
+      item._hoverBridgeApplied = true;
+      item.addEventListener('mouseenter', function() {
+        if (diagState.mouseMovementDetected) {
+          this.focus({ preventScroll: true });
+        }
+      });
+    });
+  }
+
+  // --- TOGGLE DIAGNOSTICS PANEL ---
+  function toggleDiagPanel() {
+    var overlay = dEl('diag-overlay');
+    var hint = dEl('diag-toggle-hint');
+    if (!overlay) return;
+    diagState.visible = !diagState.visible;
+    overlay.classList.toggle('hidden', !diagState.visible);
+    if (hint) hint.classList.toggle('hidden', diagState.visible);
+  }
+
+  // Register all diagnostic listeners (capture phase for key events)
+  window.addEventListener('keydown', onDiagKeyDown, true);
+  window.addEventListener('keyup', onDiagKeyUp, true);
+  document.addEventListener('mousemove', onDiagMouseMove, { passive: true, capture: true });
+  document.addEventListener('mousedown', onDiagMouseDown, true);
+  document.addEventListener('mouseup', onDiagMouseUp, true);
+  document.addEventListener('click', onDiagClick, true);
+  document.addEventListener('focusin', onDiagFocusIn, true);
+
+  // Toggle with 'D' key (not when focused on input)
+  window.addEventListener('keydown', function(e) {
+    if ((e.key === 'd' || e.key === 'D') && !e.ctrlKey && !e.altKey && !e.metaKey) {
+      var tag = document.activeElement ? document.activeElement.tagName : '';
+      if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
+        toggleDiagPanel();
+      }
+    }
+  });
+
+  // Close button
+  setTimeout(function() {
+    var closeBtn = dEl('diag-close-btn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleDiagPanel();
+      });
+    }
+  }, 50);
+
+  // Hide toggle hint after 5s
+  setTimeout(function() {
+    var hint = dEl('diag-toggle-hint');
+    if (hint && diagState.visible) hint.classList.add('hidden');
+  }, 5000);
+
+  // Initial counters
+  updateDiagCounters();
+  updateFocusDisplay();
+
+  // ============================================================
+  // END DIAGNOSTICS SYSTEM
+  // ============================================================
 
   // --- 1. APPS REGISTRY & VERIFIED INTENT LAUNCHERS ---
   var APPS = {
@@ -1519,6 +2106,16 @@ header.hero-header {
   // --- INITIALIZE UI ---
   renderMoodDeck();
   renderCarousel();
+
+  // Apply hover-focus bridge for pointer navigation
+  applyHoverFocusBridge();
+
+  // Re-apply bridge after dynamic renders (mood deck re-renders)
+  var origRenderMoodDeck = renderMoodDeck;
+  renderMoodDeck = function() {
+    origRenderMoodDeck();
+    applyHoverFocusBridge();
+  };
 
   // Button spin wire
   var btnSpin = document.getElementById('btn-shuffle-spin');

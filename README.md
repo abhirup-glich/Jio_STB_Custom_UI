@@ -46,11 +46,11 @@ The main dock contains the exact 8 requested applications with floating logos, c
    - Horizontal poster browsing strip featuring top movies and series across Indian OTT platforms.
    - Smooth focus zoom, lighting elevation, and direct OTT app deep linking on click.
 
-5. **Jio Remote Spatial Navigation**:
-   - Full 2D geometric navigation with D-pad (`Up`, `Down`, `Left`, `Right`).
-   - `OK / Select` triggers actions without double-tap repeat glitches.
-   - `Back` safely returns focus to the main dock.
-   - Web cursor is suppressed (`cursor: none`) for a pure native TV feel.
+5. **Dual-Mode Jio Remote Navigation & Diagnostics**:
+   - **Hardware D-pad Mode**: Full 2D spatial navigation with Up, Down, Left, Right, OK, and Back.
+   - **Pointer Snapping Mode**: Pointer-compatible navigation with invisible hit pad expansion, hover-to-focus bridging, and proximity focus snapping (nearest interactive element within 80px snaps into focus automatically).
+   - **Remote Input Diagnostics Overlay**: Real-time event monitor capturing `keydown`, `keyup`, `mousemove`, `mousedown`, `mouseup`, and `click` with timestamp, key code, coordinates, active element, and automatic mode detection (`KEYBOARD`, `MOUSE`, or `HYBRID`). Press `D` or use the on-screen toggle to show/hide.
+   - Webpage cursor suppressed via CSS (`cursor: none`) while acknowledging native OS pointer boundaries.
 
 ---
 
