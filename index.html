@@ -13,7 +13,7 @@
   --card-bg: #172339;
   --card-border: #364865;
   --focus-border: #ffcc00;
-  --focus-glow: rgba(255, 204, 0, 0.45);
+  --focus-glow: rgba(255, 204, 0, 0.55);
   --success-color: #38d39f;
   --fail-color: #ff5e5e;
   --warn-color: #ffb703;
@@ -21,6 +21,10 @@
   --text-sub: #a8b6d1;
 }
 * { box-sizing: border-box; }
+html {
+  scroll-behavior: smooth;
+  height: 100%;
+}
 body {
   margin: 0;
   background: var(--bg-gradient);
@@ -28,6 +32,14 @@ body {
   min-height: 100vh;
   padding: 3vh 4vw;
   font-size: 16px;
+  cursor: none; /* Hide webpage mouse cursor for native TV experience */
+  user-select: none;
+  -webkit-user-select: none;
+  overflow-x: hidden;
+}
+/* Re-enable pointer if user touches or moves physical mouse */
+body.show-cursor {
+  cursor: default;
 }
 header {
   display: flex;
@@ -75,17 +87,46 @@ h1 {
 
 /* Navigable focus styling */
 .nav-item {
-  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.18s cubic-bezier(0.2, 0, 0, 1), background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
   cursor: pointer;
   user-select: none;
+  position: relative;
 }
 .nav-item:focus, .nav-item.focused {
   outline: none !important;
   border-color: var(--focus-border) !important;
-  background: #25426e !important;
-  transform: scale(1.035);
-  box-shadow: 0 0 0 4px var(--focus-glow), 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+  background: #233e68 !important;
+  transform: scale(1.045) translateY(-2px);
+  box-shadow: 0 0 0 3px var(--focus-glow), 0 10px 28px rgba(0, 0, 0, 0.6) !important;
   z-index: 10;
+}
+.nav-item:active, .nav-item.activating {
+  transform: scale(0.98) !important;
+  transition: transform 0.08s ease;
+}
+
+/* TV Focus Live Monitor HUD */
+.remote-hud {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(14, 23, 38, 0.95);
+  border: 1px solid #2e4363;
+  border-radius: 12px;
+  padding: 8px 16px;
+  margin-top: 14px;
+  font-family: Consolas, monospace;
+  font-size: 13px;
+  color: #b5cbe8;
+  flex-wrap: wrap;
+}
+.remote-hud .hud-pill {
+  background: #1b2940;
+  border: 1px solid #3c5275;
+  border-radius: 6px;
+  padding: 4px 8px;
+  color: #ffcc00;
+  font-weight: bold;
 }
 
 /* Primary Top Grid */
@@ -358,6 +399,15 @@ h1 {
     <div class="sub">
       All 4 primary apps verified working natively on Jio STB.<br>
       Use <strong>Remote Arrow Keys</strong> to navigate, <strong>OK / Enter</strong> to launch, and <strong>Back</strong> to return to the top grid.
+    </div>
+    <!-- Live Remote & Focus Monitor -->
+    <div class="remote-hud" id="remote-hud" aria-live="polite">
+      <span>Remote Input:</span>
+      <span class="hud-pill" id="hud-last-key">Waiting for key...</span>
+      <span>Focused:</span>
+      <span class="hud-pill" id="hud-focused-item">YouTube</span>
+      <span>Spatial Nav:</span>
+      <span class="hud-pill" style="color:#6ee7b7">Active (Hardware DPAD)</span>
     </div>
   </div>
 </header>
@@ -757,6 +807,51 @@ h1 {
   var diagVerdictEl = document.getElementById('diag-verdict');
   var diagVisibilityEl = document.getElementById('diag-visibility');
   var logEl = document.getElementById('event-log');
+  var hudLastKeyEl = document.getElementById('hud-last-key');
+  var hudFocusedItemEl = document.getElementById('hud-focused-item');
+
+  // Track Last Focused Element for TV Session Persistence
+  var LAST_FOCUSED_ID_KEY = 'jio_last_focused_element_id';
+  var lastFocusedEl = null;
+
+  function updateFocusHUD(target) {
+    if (!target) return;
+    var name = target.id || target.textContent || 'Element';
+    var appTitle = target.querySelector ? target.querySelector('.appname, .m-title') : null;
+    if (appTitle) {
+      name = appTitle.textContent;
+    }
+    if (hudFocusedItemEl) {
+      hudFocusedItemEl.textContent = name;
+    }
+    try {
+      if (target.id) {
+        localStorage.setItem(LAST_FOCUSED_ID_KEY, target.id);
+      }
+    } catch(e) {}
+  }
+
+  // Monitor all focus changes across the document
+  document.addEventListener('focusin', function(e) {
+    if (e.target && e.target.classList && e.target.classList.contains('nav-item')) {
+      // Remove any lingering focused class from siblings
+      var currentFocused = document.querySelectorAll('.nav-item.focused');
+      for (var i = 0; i < currentFocused.length; i++) {
+        if (currentFocused[i] !== e.target) {
+          currentFocused[i].classList.remove('focused');
+        }
+      }
+      e.target.classList.add('focused');
+      lastFocusedEl = e.target;
+      updateFocusHUD(e.target);
+    }
+  }, true);
+
+  document.addEventListener('focusout', function(e) {
+    if (e.target && e.target.classList) {
+      e.target.classList.remove('focused');
+    }
+  }, true);
 
   function recordLog(msg, type) {
     var t = new Date().toLocaleTimeString();
@@ -980,7 +1075,11 @@ h1 {
     var current = document.activeElement;
     var candidates = Array.prototype.slice.call(document.querySelectorAll('.nav-item'));
     if (!current || candidates.indexOf(current) === -1) {
-      candidates[0].focus();
+      if (lastFocusedEl && document.contains(lastFocusedEl)) {
+        lastFocusedEl.focus();
+      } else {
+        candidates[0].focus();
+      }
       return;
     }
 
@@ -996,7 +1095,7 @@ h1 {
       if (el === current || el.disabled) continue;
 
       var r = el.getBoundingClientRect();
-      // Skip offscreen or hidden
+      // Skip offscreen or zero-sized elements
       if (r.width === 0 || r.height === 0) continue;
 
       var ecx = r.left + r.width / 2;
@@ -1014,9 +1113,9 @@ h1 {
         // Bias distance heavily along primary axis to maintain natural grids
         var dist;
         if (direction === 'left' || direction === 'right') {
-          dist = Math.abs(dx) + Math.abs(dy) * 2.5;
+          dist = Math.abs(dx) + Math.abs(dy) * 2.8;
         } else {
-          dist = Math.abs(dy) + Math.abs(dx) * 2.0;
+          dist = Math.abs(dy) + Math.abs(dx) * 2.2;
         }
         if (dist < bestDistance) {
           bestDistance = dist;
@@ -1028,62 +1127,125 @@ h1 {
     if (bestEl) {
       bestEl.focus();
       bestEl.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+      lastFocusedEl = bestEl;
+      updateFocusHUD(bestEl);
     }
   }
 
-  // Key event listener for Remote control
+  // Mouse Movement Detector: enable cursor only if physical mouse moved significantly
+  var lastMouseX = -1, lastMouseY = -1;
+  window.addEventListener('mousemove', function(e) {
+    if (lastMouseX === -1) {
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+      return;
+    }
+    var dist = Math.hypot(e.clientX - lastMouseX, e.clientY - lastMouseY);
+    if (dist > 15) {
+      document.body.classList.add('show-cursor');
+    }
+  }, { passive: true });
+
+  // Key event listener for Remote control & DPAD mappings
   window.addEventListener('keydown', function(e) {
     var key = e.key || '';
     var code = e.keyCode || e.which || 0;
 
-    // Up: ArrowUp, KeyUp, keyCode 38, Android DPAD_UP 19
+    // Hide cursor as soon as any remote key is pressed
+    document.body.classList.remove('show-cursor');
+
+    // Update Live HUD
+    if (hudLastKeyEl) {
+      hudLastKeyEl.textContent = (key || 'Key') + ' [' + code + ']';
+    }
+
+    // Up: ArrowUp, Up, keyCode 38, Android KEYCODE_DPAD_UP (19)
     if (key === 'ArrowUp' || key === 'Up' || code === 38 || code === 19) {
       e.preventDefault();
+      e.stopPropagation();
       navigateDirection('up');
     }
-    // Down: ArrowDown, KeyDown, keyCode 40, Android DPAD_DOWN 20
+    // Down: ArrowDown, Down, keyCode 40, Android KEYCODE_DPAD_DOWN (20)
     else if (key === 'ArrowDown' || key === 'Down' || code === 40 || code === 20) {
       e.preventDefault();
+      e.stopPropagation();
       navigateDirection('down');
     }
-    // Left: ArrowLeft, KeyLeft, keyCode 37, Android DPAD_LEFT 21
+    // Left: ArrowLeft, Left, keyCode 37, Android KEYCODE_DPAD_LEFT (21)
     else if (key === 'ArrowLeft' || key === 'Left' || code === 37 || code === 21) {
       e.preventDefault();
+      e.stopPropagation();
       navigateDirection('left');
     }
-    // Right: ArrowRight, KeyRight, keyCode 39, Android DPAD_RIGHT 22
+    // Right: ArrowRight, Right, keyCode 39, Android KEYCODE_DPAD_RIGHT (22)
     else if (key === 'ArrowRight' || key === 'Right' || code === 39 || code === 22) {
       e.preventDefault();
+      e.stopPropagation();
       navigateDirection('right');
     }
-    // OK / Enter: Enter, Select, OK, keyCode 13, Android DPAD_CENTER 23, ENTER 66
+    // OK / Enter: Enter, Select, OK, keyCode 13, Android KEYCODE_DPAD_CENTER (23), KEYCODE_ENTER (66)
     else if (key === 'Enter' || key === 'Select' || key === 'OK' || code === 13 || code === 23 || code === 66) {
+      e.preventDefault();
+      e.stopPropagation();
+      // Prevent repeated actions on key repeat / holding down
+      if (e.repeat) return;
+
       var cur = document.activeElement;
       if (cur && cur.classList && cur.classList.contains('nav-item')) {
-        e.preventDefault();
+        cur.classList.add('activating');
+        setTimeout(function() {
+          if (cur) cur.classList.remove('activating');
+        }, 150);
         cur.click();
       }
     }
-    // Back button: Backspace, Escape, GoBack, keyCode 8, 27, 4 (Android Back), 461, 10009
+    // Back button: Backspace, Escape, GoBack, keyCode 8, 27, 4 (Android Back), 461 (webOS), 10009 (Tizen)
     else if (key === 'Backspace' || key === 'Escape' || key === 'GoBack' || code === 8 || code === 27 || code === 4 || code === 461 || code === 10009) {
       var active = document.activeElement;
       var topItem = document.getElementById('app-youtube');
-      // If we are deep down in the panels, return focus to top item instead of exiting browser
+      // If focused inside sub-panels or methods, return focus safely to the primary grid
       if (active && active !== topItem && active.id !== 'app-hotstar' && active.id !== 'app-prime-quick' && active.id !== 'app-jio-quick') {
         e.preventDefault();
+        e.stopPropagation();
         topItem.focus();
         topItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-        recordLog('Remote Back pressed: Returned focus to Top Grid.', 'info');
+        updateFocusHUD(topItem);
+        recordLog('Remote Back pressed: Returned focus to primary grid.', 'info');
       }
     }
-  });
+  }, true);
 
-  // Initial focus on YouTube tile
-  setTimeout(function() {
-    var yt = document.getElementById('app-youtube');
-    if (yt) yt.focus();
-    recordLog('JioSphere App Launcher ready. 4/4 Apps Verified Working on JMSD200Av2 (25.1.9).', 'success');
-  }, 100);
+  // Restore or set initial focus on load
+  function restoreOrSetInitialFocus() {
+    var targetEl = null;
+    try {
+      var savedId = localStorage.getItem(LAST_FOCUSED_ID_KEY);
+      if (savedId) {
+        targetEl = document.getElementById(savedId);
+      }
+    } catch(e) {}
+
+    if (!targetEl || !document.contains(targetEl)) {
+      targetEl = document.getElementById('app-youtube');
+    }
+
+    if (targetEl) {
+      targetEl.focus();
+      targetEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      updateFocusHUD(targetEl);
+      lastFocusedEl = targetEl;
+    }
+    recordLog('JioSphere TV Focus Engine initialized. Hardware DPAD Active.', 'success');
+  }
+
+  // Trigger on DOM ready and window load
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(restoreOrSetInitialFocus, 50);
+  } else {
+    window.addEventListener('DOMContentLoaded', function() {
+      setTimeout(restoreOrSetInitialFocus, 50);
+    });
+  }
 
 })();
 </script>
