@@ -14,6 +14,7 @@ A lightweight custom UI test tool designed for Jio Set-Top Box (JMSD200Av2) to r
 - **Zero Installation**: Runs directly as an HTTPS web page without modifying device system files or requiring root access.
 
 ## Usage
-1. Host `jiosphere_app_launch_test.html` on an HTTPS web server (e.g. GitHub Pages).
+1. Host `index.html` on an HTTPS web server (e.g. GitHub Pages).
 2. Open the URL in the JioSphere browser on your Jio STB.
 3. Use the remote control arrow keys to navigate the tiles and press **OK** to test launching each app.
+
