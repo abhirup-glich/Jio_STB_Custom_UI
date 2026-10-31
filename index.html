@@ -351,12 +351,13 @@ h1 {
     <div class="badge-group">
       <span class="tag">Device: JMSD200Av2</span>
       <span class="tag">JioOS: 25.1.9</span>
-      <span class="tag tag-success">Zero Modifications (No Root/ADB)</span>
+      <span class="tag tag-success">4/4 Apps Confirmed Working</span>
+      <span class="tag">Zero Modifications</span>
     </div>
-    <h1>JioSphere App Launch Tester</h1>
+    <h1>JioSphere App Launcher & Diagnostic Center</h1>
     <div class="sub">
-      Targeted native application intent resolver for Jio Set-Top Box.<br>
-      Use <strong>Remote Arrow Keys</strong> to navigate, <strong>OK / Enter</strong> to test, and <strong>Back</strong> to return to the top grid.
+      All 4 primary apps verified working natively on Jio STB.<br>
+      Use <strong>Remote Arrow Keys</strong> to navigate, <strong>OK / Enter</strong> to launch, and <strong>Back</strong> to return to the top grid.
     </div>
   </div>
 </header>
@@ -364,46 +365,46 @@ h1 {
 <main>
   <!-- Primary 4-tile Quick Access -->
   <div class="section-title">
-    <span>Primary Applications</span>
+    <span>Verified Applications (Permanent)</span>
   </div>
   <div class="grid-primary">
-    <!-- YouTube (Unchanged / Working) -->
+    <!-- YouTube (Working) -->
     <button class="nav-item app-card" id="app-youtube" type="button" data-type="primary" data-app="youtube">
       <span class="status-pill pill-working">Working</span>
       <span class="symbol" style="color:#ff4444">▶</span>
       <span>
         <span class="appname">YouTube</span>
-        <div class="appsmall">Android TV App (Unchanged)</div>
+        <div class="appsmall">Android TV App</div>
       </span>
     </button>
 
-    <!-- JioHotstar (Unchanged / Working) -->
+    <!-- JioHotstar (Working) -->
     <button class="nav-item app-card" id="app-hotstar" type="button" data-type="primary" data-app="hotstar">
       <span class="status-pill pill-working">Working</span>
       <span class="symbol" style="color:#5f9eff">★</span>
       <span>
         <span class="appname">JioHotstar</span>
-        <div class="appsmall">Android TV App (Unchanged)</div>
+        <div class="appsmall">Android TV App</div>
       </span>
     </button>
 
-    <!-- Prime Video Quick Test -->
+    <!-- Prime Video (P10 Permanent Working) -->
     <button class="nav-item app-card" id="app-prime-quick" type="button" data-type="primary" data-app="prime_best">
-      <span class="status-pill pill-testing">Testing</span>
+      <span class="status-pill pill-working">Working</span>
       <span class="symbol" style="color:#00a8e1">prime</span>
       <span>
         <span class="appname">Prime Video</span>
-        <div class="appsmall">Launches [P1] Leanback Intent</div>
+        <div class="appsmall">Android TV App (P10 Intent)</div>
       </span>
     </button>
 
-    <!-- Live TV+ / JioTV+ Quick Test -->
+    <!-- Live TV+ / JioTV+ (J10 Permanent Working) -->
     <button class="nav-item app-card" id="app-jio-quick" type="button" data-type="primary" data-app="jio_best">
-      <span class="status-pill pill-testing">Testing</span>
+      <span class="status-pill pill-working">Working</span>
       <span class="symbol" style="color:#ff3366">Jio</span>
       <span>
         <span class="appname">Live TV+</span>
-        <div class="appsmall">Launches [J1] Leanback Intent</div>
+        <div class="appsmall">JioTV+ App (J10 Scheme)</div>
       </span>
     </button>
   </div>
@@ -495,19 +496,35 @@ h1 {
 (function() {
   'use strict';
 
-  // --- Working unchanged methods ---
-  var UNCHANGED_APPS = {
+  // --- Confirmed Working Applications (Permanent) ---
+  var VERIFIED_APPS = {
     youtube: {
+      id: 'YT',
       name: 'YouTube',
       package: 'com.google.android.youtube.tv',
       uri: 'intent://www.youtube.com/#Intent;scheme=https;package=com.google.android.youtube.tv;action=android.intent.action.VIEW;end',
-      desc: 'Original Android TV Leanback method (Confirmed Working)'
+      title: 'YouTube (Verified Working)'
     },
     hotstar: {
+      id: 'HS',
       name: 'JioHotstar',
       package: 'in.startv.hotstar',
       uri: 'intent://www.hotstar.com/#Intent;scheme=https;package=in.startv.hotstar;action=android.intent.action.VIEW;end',
-      desc: 'Original Android TV Leanback method (Confirmed Working)'
+      title: 'JioHotstar (Verified Working)'
+    },
+    prime: {
+      id: 'P10',
+      name: 'Prime Video',
+      package: 'com.amazon.amazonvideo.livingroom',
+      uri: 'intent://app.primevideo.com/#Intent;scheme=https;package=com.amazon.amazonvideo.livingroom;action=android.intent.action.VIEW;end',
+      title: 'Prime Video [P10 Alt Deep Link] (Verified Working)'
+    },
+    jio: {
+      id: 'J10',
+      name: 'Live TV+ / JioTV+',
+      package: 'com.jio.media.jiotvplus',
+      uri: 'jiotvplus://',
+      title: 'Live TV+ [J10 jiotvplus://] (Verified Working)'
     }
   };
 
@@ -715,12 +732,20 @@ h1 {
     }
   ];
 
-  // State
+  // State - P10 and J10 are pre-confirmed working
   var currentAttempt = null;
-  var verdicts = {};
+  var verdicts = {
+    'P10': 'pass',
+    'J10': 'pass'
+  };
   try {
     var stored = localStorage.getItem('jio_stb_verdicts');
-    if (stored) verdicts = JSON.parse(stored);
+    if (stored) {
+      var parsed = JSON.parse(stored);
+      for (var k in parsed) {
+        verdicts[k] = parsed[k];
+      }
+    }
   } catch(e) {}
 
   // Elements
@@ -856,37 +881,25 @@ h1 {
     dispatchSafeUri(info.uri);
   }
 
-  // Wire primary tiles
+  // Wire primary tiles with confirmed permanent methods
   document.getElementById('app-youtube').onclick = function(e) {
     e.preventDefault();
-    executeTest({
-      id: 'YT',
-      name: UNCHANGED_APPS.youtube.name,
-      package: UNCHANGED_APPS.youtube.package,
-      uri: UNCHANGED_APPS.youtube.uri,
-      title: 'YouTube (Original Working Method)'
-    });
+    executeTest(VERIFIED_APPS.youtube);
   };
 
   document.getElementById('app-hotstar').onclick = function(e) {
     e.preventDefault();
-    executeTest({
-      id: 'HS',
-      name: UNCHANGED_APPS.hotstar.name,
-      package: UNCHANGED_APPS.hotstar.package,
-      uri: UNCHANGED_APPS.hotstar.uri,
-      title: 'JioHotstar (Original Working Method)'
-    });
+    executeTest(VERIFIED_APPS.hotstar);
   };
 
   document.getElementById('app-prime-quick').onclick = function(e) {
     e.preventDefault();
-    executeTest(PRIME_METHODS[0]); // P1
+    executeTest(VERIFIED_APPS.prime); // P10 Confirmed Permanent
   };
 
   document.getElementById('app-jio-quick').onclick = function(e) {
     e.preventDefault();
-    executeTest(JIO_METHODS[0]); // J1
+    executeTest(VERIFIED_APPS.jio); // J10 Confirmed Permanent
   };
 
   // Verdict recording buttons
@@ -1069,7 +1082,7 @@ h1 {
   setTimeout(function() {
     var yt = document.getElementById('app-youtube');
     if (yt) yt.focus();
-    recordLog('JioSphere App Launch Tester ready. Device: JMSD200Av2 (25.1.9).', 'info');
+    recordLog('JioSphere App Launcher ready. 4/4 Apps Verified Working on JMSD200Av2 (25.1.9).', 'success');
   }, 100);
 
 })();
